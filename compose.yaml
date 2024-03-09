@@ -1,14 +1,14 @@
 services:
   mysql:
-    image: 'mysql:latest'
+    image: 'mysql:8.3'
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_DATABASE=celog'
       - 'MYSQL_PASSWORD=secret'
       - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=myuser'
     ports:
-      - '3306'
+      - '3306:3306' # 외부에서 값을 확인하기 위해서 포트포워딩
   redis:
-    image: 'redis:latest'
+    image: 'redis:7.2'
     ports:
-      - '6379'
+      - '6379:6379' # 외부에서 값을 확인하기 위해서 포트포워딩
