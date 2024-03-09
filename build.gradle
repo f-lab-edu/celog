@@ -53,3 +53,16 @@ tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
 }
+
+// 커밋 컨벤션을 지키기 위한 commit-msg 스크립트를 local git hook에 적용하는 task
+// 새로운 환경에서 프로젝트를 열었을 때, commit-msg 스크립트를 적용하기 위해서 사용해야 함
+tasks.register("addLocalGitHook") {
+    println("Running Add commit-msg Git Hook Script on Build")
+    exec {
+        commandLine("cp", "${rootDir}/.github/hooks/commit-msg", "${rootDir}/.git/hooks/commit-msg")
+    }
+    exec {
+        commandLine("chmod", "+x", "${rootDir}/.git/hooks/commit-msg")
+    }
+    println("Added commit-msg Git Hook Script.")
+}

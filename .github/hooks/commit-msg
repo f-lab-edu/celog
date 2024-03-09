@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# Define colors for terminal output
+LIGHT_GRAY="\033[0;37m"
+YELLOW="\033[33m"
+CYAN="\033[36m"
+RED="\033[31m"
+RESET_COLOR="\033[0m"
+
+# Set default values
+revert=true
+min_length=1
+max_length=52
+max_line_length=72
+types="build ci docs feat fix perf refactor style test chore"
+
+# Function to build a regular expression for commit message validation
+build_regex() {
+ regexp="^[.0-9]+$|"
+
+ if $revert; then
+   regexp="${regexp}^([Rr]evert|[Mm]erge):? )?.*$|^("
+ fi
+
+ for type in $types; do
+   regexp="${regexp}$type|"
+ done
+
+ regexp="${regexp%|})(\\(.+\\))?!?: "
+ regexp="${regexp}.{$min_length,$max_length}"
+ echo "$regexp"
+}
+
+# Function to print an error message
+print_error() {
+ message="$1"
+ echo "${RED}[Invalid Commit Message]${RESET_COLOR}"
+ echo "------------------------"
+ echo "${LIGHT_GRAY}$message${RESET_COLOR}"
+}
+
+# Function to validate the commit message
+validate_commit_message() {
+ input_file="$1"
+ commit_message=$(head -n1 "$input_file")
+
+ second_line=$(sed '2q;d' "$input_file")
+ if [ "$second_line" != "" ]; then
+   print_error "Title should be followed by a blank line."
+   return 1
+ fi
+
+ body=$(tail -n+3 "$input_file" | tr -d '\n')
+ if [ -n "$second_line" ] && [ -z "$body" ]; then
+   print_error "Body is required if a blank line follows the title."
+   return 1
+ fi
+
+ commit_msg_len=$(echo "$commit_message" | wc -c)
+ if [ "$commit_msg_len" -lt "$min_length" ] || [ "$commit_msg_len" -gt "$max_length" ]; then
+   print_error "Expected length: Min=${CYAN}$min_length${RESET_COLOR} Max=${CYAN}$max_length${RESET_COLOR}
+Actual length: ${YELLOW}${commit_msg_len}${RESET_COLOR}"
+   return 1
+ fi
+
+ regexp=$(build_regex)
+ if ! echo "$commit_message" | grep -Eq "$regexp"; then
+   print_error "Expected prefixes: ${CYAN}${types}${RESET_COLOR}
+Actual commit message: ${YELLOW}\"$commit_message\"${RESET_COLOR}"
+   return 1
+ fi
+
+ while read -r line; do
+   line_length=$(echo "$line" | wc -c)
+   if [ "$line_length" -gt "$max_line_length" ]; then
+     print_error "Line length exceeds maximum allowed length of ${CYAN}$max_line_length${RESET_COLOR}
+Actual line length: ${YELLOW}${line_length}${RESET_COLOR}
+Line: ${YELLOW}\"$line\"${RESET_COLOR}"
+     return 1
+   fi
+ done < "$input_file"
+
+ return 0
+}
+
+# Main function to call the validation
+main() {
+ input_file="$1"
+ validate_commit_message "$input_file"
+ result=$?
+ if [ "$result" -ne 0 ]; then
+   exit 1
+ fi
+}
+
+# Call the main function with the provided argument
+main "$1"
