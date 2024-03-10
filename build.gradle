@@ -1,8 +1,24 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.41")
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'checkstyle'
+}
+
+apply plugin: 'io.spring.javaformat' // plugins 블럭에 넣으면 버그남
+
+checkstyle {
+    toolVersion = "9.3"
 }
 
 group = 'dev.sijun-yang'
@@ -42,6 +58,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+    checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:0.0.41")
 }
 
 tasks.named('test') {
