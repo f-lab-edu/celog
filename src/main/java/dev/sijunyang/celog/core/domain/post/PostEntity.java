@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 /**
  * 포스트(게시글) 정보를 저장하는 엔티티 클래스입니다.
  *
+ * @see PostHashtagEntity
  * @author Sijun Yang
  */
 @Getter
