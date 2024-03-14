@@ -26,7 +26,7 @@ import org.springframework.lang.Nullable;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "users") // user는 h2, mysql의 예약어이므로 사용할 수 없음
+@Entity(name = "users") // user는 h2 예약어이므로 사용할 수 없음
 public class UserEntity extends BaseTimeEntity {
 
     /**
