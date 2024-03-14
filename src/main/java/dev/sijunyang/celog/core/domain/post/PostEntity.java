@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_post")
+@Entity(name = "post")
 public class PostEntity extends BaseTimeEntity {
 
     /**

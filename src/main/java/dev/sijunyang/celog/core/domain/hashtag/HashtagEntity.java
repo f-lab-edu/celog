@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_hashtag")
+@Entity(name = "hashtag")
 public class HashtagEntity extends BaseCreateTimeEntity {
 
     /**

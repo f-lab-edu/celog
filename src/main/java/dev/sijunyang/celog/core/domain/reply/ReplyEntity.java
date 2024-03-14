@@ -22,7 +22,7 @@ import org.springframework.lang.Nullable;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_reply")
+@Entity(name = "reply")
 public class ReplyEntity extends BaseTimeEntity {
 
     @Id

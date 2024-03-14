@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_post_hashtag")
+@Entity(name = "post_hashtag")
 public class PostHashtagEntity {
 
     /**

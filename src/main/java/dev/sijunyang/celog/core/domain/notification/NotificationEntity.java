@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_notification")
+@Entity(name = "notification")
 public class NotificationEntity extends BaseCreateTimeEntity {
 
     /**

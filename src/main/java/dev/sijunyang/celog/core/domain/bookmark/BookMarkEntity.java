@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "tbl_bookmark")
+@Entity(name = "bookmark")
 public class BookMarkEntity extends BaseCreateTimeEntity {
 
     /**
