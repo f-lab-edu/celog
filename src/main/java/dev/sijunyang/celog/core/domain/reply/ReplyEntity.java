@@ -1,7 +1,7 @@
 package dev.sijunyang.celog.core.domain.reply;
 
-import dev.sijunyang.celog.core.global.jpa.BaseTimeEntity;
 import dev.sijunyang.celog.core.domain.post.PostEntity;
+import dev.sijunyang.celog.core.global.jpa.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,8 +1,8 @@
 package dev.sijunyang.celog.core.domain.bookmark;
 
-import dev.sijunyang.celog.core.global.jpa.BaseCreateTimeEntity;
-import dev.sijunyang.celog.core.domain.user.UserEntity;
 import dev.sijunyang.celog.core.domain.post.PostEntity;
+import dev.sijunyang.celog.core.domain.user.UserEntity;
+import dev.sijunyang.celog.core.global.jpa.BaseCreateTimeEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
