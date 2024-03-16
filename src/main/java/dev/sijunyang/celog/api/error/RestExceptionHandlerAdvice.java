@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * RESTful API에서 발생하는 예외 상황을 처리하기 위한 전역 예외 핸들러 클래스입니다.
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * @author Sijun Yang
  */
 @ControllerAdvice
-public class RestExceptionHandlerAdvice {
+public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     /**
      * 예상치 못한 예외 발생 시 처리하는 핸들러 메서드입니다. 500 Internal Server Error 응답을 반환합니다.
