@@ -1,6 +1,7 @@
 package dev.sijunyang.celog.core.domain.user;
 
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
+import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.jpa.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -70,15 +71,23 @@ public class UserEntity extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private AuthenticationType authenticationType;
 
+    /**
+     * 사용자 인증 권한을 나타냅니다.
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Builder
     public UserEntity(Long id, String name, @Nullable String email, @Nullable OauthUser oauthUser,
-            @Nullable String profileUrl, AuthenticationType authenticationType) {
+            @Nullable String profileUrl, AuthenticationType authenticationType, Role role) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.oauthUser = oauthUser;
         this.profileUrl = profileUrl;
         this.authenticationType = authenticationType;
+        this.role = role;
     }
 
     /**
