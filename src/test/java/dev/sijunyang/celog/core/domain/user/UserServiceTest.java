@@ -146,7 +146,7 @@ class UserServiceTest {
         doReturn(Optional.empty()).when(userRepository).findById(userId);
 
         // When & Then
-        assertThrows(UserNotFoundException.class, () -> userService.findUserById(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(userId));
     }
 
 }
