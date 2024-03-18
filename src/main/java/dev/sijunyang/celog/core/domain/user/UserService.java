@@ -26,17 +26,17 @@ public class UserService {
         }
 
         UserEntity userEntity = UserEntity.builder()
-            .name(request.name())
-            .email(request.email())
-            .oauthUser(request.oauthUser())
-            .profileUrl(request.profileUrl())
-            .authenticationType(request.authenticationType())
-            .role(request.role())
-            .build();
+                .name(request.name())
+                .email(request.email())
+                .oauthUser(request.oauthUser())
+                .profileUrl(request.profileUrl())
+                .authenticationType(request.authenticationType())
+                .role(request.role())
+                .build();
 
         UserEntity savedEntity = this.userRepository.save(userEntity);
 
-        return UserDto.convert(savedEntity);
+        return mapToUserDto(savedEntity);
     }
 
     /**
@@ -50,16 +50,16 @@ public class UserService {
         UserEntity oldUserEntity = findUserById(userId);
 
         UserEntity updatedEntity = UserEntity.builder()
-            .id(oldUserEntity.getId())
-            .name(request.name())
-            .email(request.email())
-            .oauthUser(oldUserEntity.getOauthUser())
-            .profileUrl(request.profileUrl())
-            .authenticationType(oldUserEntity.getAuthenticationType())
-            .role(request.role())
-            .build();
+                .id(oldUserEntity.getId())
+                .name(request.name())
+                .email(request.email())
+                .oauthUser(oldUserEntity.getOauthUser())
+                .profileUrl(request.profileUrl())
+                .authenticationType(oldUserEntity.getAuthenticationType())
+                .role(request.role())
+                .build();
 
-        return UserDto.convert(updatedEntity);
+        return mapToUserDto(updatedEntity);
     }
 
     /**
@@ -79,7 +79,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserById(Long userId) {
-        return UserDto.convert(findUserById(userId));
+        return mapToUserDto(findUserById(userId));
     }
 
     /**
@@ -89,7 +89,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserByEmail(String email) {
-        return UserDto.convert(findUserById(email));
+        return mapToUserDto(findUserById(email));
     }
 
     /**
@@ -100,23 +100,37 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserByOAuthInfo(String providerName, String oauthUserId) {
-        return UserDto.convert(findUserByOAuthInfo(providerName, oauthUserId));
+        return mapToUserDto(findUserByOAuthInfo(providerName, oauthUserId));
     }
 
     private UserEntity findUserById(Long userId) {
         return this.userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+                .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
     }
 
     private UserEntity findUserById(String email) {
         return this.userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)));
+                .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)));
     }
 
     private UserEntity findUserByOAuthInfo(String providerName, String oauthUserId) {
         return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
-            .orElseThrow(
-                    () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)));
+                .orElseThrow(
+                        () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)));
+    }
+
+    public UserDto mapToUserDto(UserEntity user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .profileUrl(user.getProfileUrl())
+                .oauthUser(user.getOauthUser())
+                .authenticationType(user.getAuthenticationType())
+                .role(user.getRole())
+                .modifiedAt(user.getModifiedAt())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
 }

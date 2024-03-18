@@ -42,18 +42,4 @@ public class UserDto {
         this.createdAt = createdAt;
     }
 
-    public static UserDto convert(UserEntity user) {
-        return UserDto.builder()
-            .id(user.getId())
-            .name(user.getName())
-            .email(user.getEmail())
-            .profileUrl(user.getProfileUrl())
-            .oauthUser(user.getOauthUser())
-            .authenticationType(user.getAuthenticationType())
-            .role(user.getRole())
-            .modifiedAt(user.getModifiedAt())
-            .createdAt(user.getCreatedAt())
-            .build();
-    }
-
 }
