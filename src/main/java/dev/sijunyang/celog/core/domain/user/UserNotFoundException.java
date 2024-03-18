@@ -2,19 +2,21 @@ package dev.sijunyang.celog.core.domain.user;
 
 import dev.sijunyang.celog.core.global.error.NotFoundException;
 
+import java.util.Map;
+
 public class UserNotFoundException extends NotFoundException {
 
-    protected UserNotFoundException(Long userId) {
-        super(getMessage(userId));
+    protected UserNotFoundException(Map<String, Object> inputs) {
+        super(getMessage(inputs));
     }
 
-    protected UserNotFoundException(Long userId, Throwable cause) {
-        super(getMessage(userId), cause);
+    protected UserNotFoundException(Map<String, Object> inputs, Throwable cause) {
+        super(getMessage(inputs), cause);
     }
 
-    protected UserNotFoundException(Long userId, Throwable cause, boolean enableSuppression,
+    protected UserNotFoundException(Map<String, Object> inputs, Throwable cause, boolean enableSuppression,
             boolean writableStackTrace) {
-        super(getMessage(userId), cause, enableSuppression, writableStackTrace);
+        super(getMessage(inputs), cause, enableSuppression, writableStackTrace);
     }
 
     @Override
@@ -22,8 +24,8 @@ public class UserNotFoundException extends NotFoundException {
         return "User_Not_Found";
     }
 
-    private static String getMessage(Long userId) {
-        return "User not found. input: " + userId;
+    private static String getMessage(Map<String, Object> inputs) {
+        return "User not found. inputs: " + inputs;
     }
 
 }
