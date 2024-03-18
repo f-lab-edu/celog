@@ -3,16 +3,18 @@ package dev.sijunyang.celog.core.domain.user;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 사용자의 OAuth 관련 정보를 저장하는 클래스입니다.
+ * 사용자의 OAuth 관련 정보를 저장하는 VO 클래스입니다.
  *
  * @author Sijun Yang
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 @Embeddable
 public class OauthUser {
 
