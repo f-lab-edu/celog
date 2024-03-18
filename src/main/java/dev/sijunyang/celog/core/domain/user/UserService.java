@@ -1,5 +1,7 @@
 package dev.sijunyang.celog.core.domain.user;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,8 +82,30 @@ public class UserService {
         return UserDto.convert(findUserById(userId));
     }
 
-    public UserEntity findUserById(Long userId) {
-        return this.userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    @Transactional(readOnly = true)
+    public UserDto getUserByEmail(String email) {
+        return UserDto.convert(findUserById(email));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDto getUserByOAuthInfo(String providerName, String oauthUserId) {
+        return UserDto.convert(findUserByOAuthInfo(providerName, oauthUserId));
+    }
+
+    private UserEntity findUserById(Long userId) {
+        return this.userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+    }
+
+    private UserEntity findUserById(String email) {
+        return this.userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)));
+    }
+
+    private UserEntity findUserByOAuthInfo(String providerName, String oauthUserId) {
+        return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
+            .orElseThrow(
+                    () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)));
     }
 
 }
