@@ -44,10 +44,7 @@ public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequ
             .orElseGet(() -> createUser(providerName, oAuth2User));
 
         Role role = createdUserDto.getRole();
-        String nameAttributeKey = userRequest.getClientRegistration()
-            .getProviderDetails()
-            .getUserInfoEndpoint()
-            .getUserNameAttributeName();
+        String nameAttributeKey = "celog_user_id";
         Map<String, Object> attributes = new HashMap<>(
                 Map.of("celog_user_id", createdUserDto.getId(), "celog_role", role));
         attributes.putAll(oAuth2User.getAttributes());
