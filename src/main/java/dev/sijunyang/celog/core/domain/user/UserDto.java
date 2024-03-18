@@ -1,6 +1,7 @@
 package dev.sijunyang.celog.core.domain.user;
 
 import java.time.LocalDateTime;
+
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
 import lombok.Builder;

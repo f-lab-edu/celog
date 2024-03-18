@@ -1,8 +1,8 @@
 package dev.sijunyang.celog.core.domain.user;
 
-import dev.sijunyang.celog.core.global.error.NotFoundException;
-
 import java.util.Map;
+
+import dev.sijunyang.celog.core.global.error.NotFoundException;
 
 public class UserNotFoundException extends NotFoundException {
 
