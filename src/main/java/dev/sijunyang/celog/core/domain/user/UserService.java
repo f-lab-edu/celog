@@ -82,11 +82,22 @@ public class UserService {
         return UserDto.convert(findUserById(userId));
     }
 
+    /**
+     * 사용자 이메일로 사용자 정보를 조회합니다.
+     * @param email 조회할 사용자 이메일
+     * @return 사용자 DTO
+     */
     @Transactional(readOnly = true)
     public UserDto getUserByEmail(String email) {
         return UserDto.convert(findUserById(email));
     }
 
+    /**
+     * OAuth 정보로 사용자 정보를 조회합니다.
+     * @param providerName oauth 제공자 이름
+     * @param oauthUserId oauth 사용자 ID
+     * @return 사용자 DTO
+     */
     @Transactional(readOnly = true)
     public UserDto getUserByOAuthInfo(String providerName, String oauthUserId) {
         return UserDto.convert(findUserByOAuthInfo(providerName, oauthUserId));
