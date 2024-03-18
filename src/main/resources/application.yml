@@ -1,1 +1,12 @@
-
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 8547be3625e78023236a #${github-client-id}
+            client-secret: 69873c7aadbe66b4a486a407e21ae41f8439d04e #${github-client-secret}
+            redirect-uri: http://localhost:8080/login/oauth2/code/github
+            #scope: profile, email
+  jpa:
+    generate-ddl: on

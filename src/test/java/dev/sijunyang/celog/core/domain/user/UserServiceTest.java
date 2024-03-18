@@ -1,5 +1,7 @@
 package dev.sijunyang.celog.core.domain.user;
 
+import dev.sijunyang.celog.core.domain.post.CreateUserRequest;
+import dev.sijunyang.celog.core.domain.post.UpdateUserRequest;
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
 import org.junit.jupiter.api.Test;
