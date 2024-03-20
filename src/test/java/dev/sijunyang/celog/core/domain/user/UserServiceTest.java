@@ -51,6 +51,13 @@ class UserServiceTest {
         UserEntity savedUser = userRepository.save(any());
         assertNotNull(savedUser);
         assertEquals(userId, savedUser.getId());
+        assertEquals(createdUserEntity.getId(), savedUser.getId());
+        assertEquals(createdUserEntity.getName(), savedUser.getName());
+        assertEquals(createdUserEntity.getEmail(), savedUser.getEmail());
+        assertEquals(createdUserEntity.getOauthUser(), savedUser.getOauthUser());
+        assertEquals(createdUserEntity.getProfileUrl(), savedUser.getProfileUrl());
+        assertEquals(createdUserEntity.getAuthenticationType(), savedUser.getAuthenticationType());
+        assertEquals(createdUserEntity.getRole(), savedUser.getRole());
     }
 
     @Test
