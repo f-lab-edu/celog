@@ -2,6 +2,7 @@ package dev.sijunyang.celog.surpport.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ public class WebSecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             // HTML을 보내거나 받지 않으므로 csrf를 방지하지 않는다.
             .csrf(AbstractHttpConfigurer::disable)
+            .oauth2Login(Customizer.withDefaults())
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests.anyRequest().permitAll());
         return http.build();
     }
