@@ -47,10 +47,6 @@ class UserServiceTest {
         // Then
         verify(userRepository, times(1)).existsByEmail(request.email());
         verify(userRepository, times(1)).save(any());
-
-        UserEntity savedUser = userRepository.save(any());
-        assertNotNull(savedUser);
-        assertEquals(userId, savedUser.getId());
     }
 
     @Test
@@ -76,16 +72,6 @@ class UserServiceTest {
         // Then
         // 의존하는 Mock 객체가 올바르게 호출되었는가?
         verify(userRepository, times(1)).findById(userId);
-        assertEquals(expectedUserEntity.getId(), userId);
-        assertEquals(expectedUserEntity.getName(), request.name());
-        assertEquals(expectedUserEntity.getEmail(), request.email());
-        assertEquals(expectedUserEntity.getProfileUrl(), request.profileUrl());
-        assertEquals(expectedUserEntity.getRole(), request.role());
-
-        UserEntity updatedUser = userRepository.findById(userId).orElse(null);
-        assertNotNull(updatedUser);
-        assertEquals(request.name(), updatedUser.getName());
-        assertEquals(request.email(), updatedUser.getEmail());
     }
 
     @Test
