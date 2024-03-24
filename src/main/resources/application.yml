@@ -1,6 +1,16 @@
 spring:
   session:
     store-type: redis
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${github-client-id}
+            client-secret: ${github-client-secret}
+            redirect-uri: http://localhost:8080/login/oauth2/code/github
+  jpa:
+    generate-ddl: on
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
