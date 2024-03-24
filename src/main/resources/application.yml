@@ -11,3 +11,6 @@ spring:
             redirect-uri: http://localhost:8080/login/oauth2/code/github
   jpa:
     generate-ddl: on
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
