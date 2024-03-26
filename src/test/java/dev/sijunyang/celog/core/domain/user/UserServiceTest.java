@@ -4,6 +4,8 @@ import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +23,9 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    @Captor
+    private ArgumentCaptor<UserEntity> userEntityCaptor;
 
     @Test
     void shouldCreateNewUser() {
@@ -46,7 +51,16 @@ class UserServiceTest {
 
         // Then
         verify(userRepository, times(1)).existsByEmail(request.email());
-        verify(userRepository, times(1)).save(any());
+        verify(userRepository, times(1)).save(userEntityCaptor.capture());
+
+        UserEntity capturedUserEntity = userEntityCaptor.getValue();
+
+        assertEquals(request.name(), capturedUserEntity.getName());
+        assertEquals(request.email(), capturedUserEntity.getEmail());
+        assertEquals(request.oauthUser(), capturedUserEntity.getOauthUser());
+        assertEquals(request.profileUrl(), capturedUserEntity.getProfileUrl());
+        assertEquals(request.authenticationType(), capturedUserEntity.getAuthenticationType());
+        assertEquals(request.role(), capturedUserEntity.getRole());
     }
 
     @Test
@@ -72,6 +86,14 @@ class UserServiceTest {
         // Then
         // 의존하는 Mock 객체가 올바르게 호출되었는가?
         verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).save(userEntityCaptor.capture());
+
+        UserEntity capturedUserEntity = userEntityCaptor.getValue();
+
+        assertEquals(request.name(), capturedUserEntity.getName());
+        assertEquals(request.email(), capturedUserEntity.getEmail());
+        assertEquals(request.profileUrl(), capturedUserEntity.getProfileUrl());
+        assertEquals(request.role(), capturedUserEntity.getRole());
     }
 
     @Test
