@@ -100,15 +100,14 @@ class UserServiceTest {
     void shouldDeleteExistingUser() {
         // Given
         Long userId = 1L;
-        UserEntity existingUserEntity = UserEntity.builder().id(userId).build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUserEntity));
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         // When
         userService.deleteUser(userId);
 
         // Then
-        verify(userRepository, times(1)).delete(existingUserEntity);
+        verify(userRepository, times(1)).existsById(userId);
+        verify(userRepository, times(1)).deleteById(userId);
     }
 
     @Test
