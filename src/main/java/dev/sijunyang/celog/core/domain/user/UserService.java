@@ -67,8 +67,8 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(long userId) {
-        UserEntity userEntity = findUserById(userId);
-        this.userRepository.delete(userEntity);
+        validUserById(userId);
+        this.userRepository.deleteById(userId);
     }
 
     /**
