@@ -80,7 +80,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserById(long userId) {
-        return mapToUserDto(findUserById(userId));
+        return findUserById(userId).toUserDto();
     }
 
     /**
@@ -90,7 +90,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserByEmail(@NotNull String email) {
-        return mapToUserDto(findUserByEmail(email));
+        return findUserByEmail(email).toUserDto();
     }
 
     /**
@@ -101,7 +101,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserDto getUserByOAuthInfo(@NotNull String providerName, @NotNull String oauthUserId) {
-        return mapToUserDto(findUserByOAuthInfo(providerName, oauthUserId));
+        return findUserByOAuthInfo(providerName, oauthUserId).toUserDto();
     }
 
     /**
@@ -143,20 +143,6 @@ public class UserService {
         return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
             .orElseThrow(
                     () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)));
-    }
-
-    public UserDto mapToUserDto(@NotNull UserEntity user) {
-        return UserDto.builder()
-            .id(user.getId())
-            .name(user.getName())
-            .email(user.getEmail())
-            .profileUrl(user.getProfileUrl())
-            .oauthUser(user.getOauthUser())
-            .authenticationType(user.getAuthenticationType())
-            .role(user.getRole())
-            .modifiedAt(user.getModifiedAt())
-            .createdAt(user.getCreatedAt())
-            .build();
     }
 
 }
