@@ -2,10 +2,12 @@ package dev.sijunyang.celog.core.domain.user;
 
 import java.util.Map;
 
+import dev.sijunyang.celog.core.global.enums.Role;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -21,9 +23,8 @@ public class UserService {
      * 새로운 사용자를 생성합니다.
      * @param request 사용자 정보
      */
-    @Transactional
     public void createUser(@NotNull @Valid CreateUserRequest request) {
-        validateUniqueEmail(request.email());
+        validateEmail(request.email());
 
         UserEntity userEntity = UserEntity.builder()
             .name(request.name())
@@ -39,14 +40,15 @@ public class UserService {
 
     /**
      * 기존 사용자 정보를 수정합니다.
+     * @param requestUserId 수정을 요청하는 사용자 ID
      * @param userId 수정할 사용자 ID
      * @param request 수정된 사용자 정보
      */
-    @Transactional
-    public void updateUser(long userId, @NotNull @Valid UpdateUserRequest request) {
-        validateUniqueEmail(request.email());
-
-        UserEntity oldUserEntity = findUserById(userId);
+    public void updateUser(long requestUserId, long userId, @NotNull @Valid UpdateUserRequest request) {
+        validateUserRole(requestUserId, userId);
+        validateEmail(request.email());
+        UserEntity oldUserEntity = this.userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
 
         UserEntity newEntity = UserEntity.builder()
             .id(oldUserEntity.getId())
@@ -63,11 +65,11 @@ public class UserService {
 
     /**
      * 사용자를 삭제합니다.
+     * @param requestUserId 삭제를 요청하는 사용자 ID
      * @param userId 삭제할 사용자 ID
      */
-    @Transactional
-    public void deleteUser(long userId) {
-        validUserById(userId);
+    public void deleteUser(long requestUserId, long userId) {
+        validateUserRole(requestUserId, userId);
         this.userRepository.deleteById(userId);
     }
 
@@ -76,9 +78,10 @@ public class UserService {
      * @param userId 조회할 사용자 ID
      * @return 사용자 DTO
      */
-    @Transactional(readOnly = true)
     public UserDto getUserById(long userId) {
-        return findUserById(userId).toUserDto();
+        return this.userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)))
+            .toUserDto();
     }
 
     /**
@@ -86,9 +89,10 @@ public class UserService {
      * @param email 조회할 사용자 이메일
      * @return 사용자 DTO
      */
-    @Transactional(readOnly = true)
     public UserDto getUserByEmail(@NotNull String email) {
-        return findUserByEmail(email).toUserDto();
+        return this.userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)))
+            .toUserDto();
     }
 
     /**
@@ -97,9 +101,11 @@ public class UserService {
      * @param oauthUserId oauth 사용자 ID
      * @return 사용자 DTO
      */
-    @Transactional(readOnly = true)
     public UserDto getUserByOAuthInfo(@NotNull String providerName, @NotNull String oauthUserId) {
-        return findUserByOAuthInfo(providerName, oauthUserId).toUserDto();
+        return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
+            .orElseThrow(
+                    () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)))
+            .toUserDto();
     }
 
     /**
@@ -107,40 +113,22 @@ public class UserService {
      * @param userId 조회할 사용자 ID
      * @throws UserNotFoundException 사용자를 찾을 수 없는 경우
      */
-    @Transactional(readOnly = true)
-    public void validUserById(long userId) throws UserNotFoundException {
-        if (!existUserById(userId)) {
-            throw new UserNotFoundException(Map.of("userId", userId));
-        }
+    public void validUserById(long userId) {
+        this.userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
     }
 
-    private UserEntity findUserById(long userId) {
-        return this.userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
-    }
-
-    private boolean existUserById(long userId) {
-        return this.userRepository.existsById(userId);
-    }
-
-    public void validateUniqueEmail(String email) throws UserNotFoundException {
-        if (email == null) {
-            return;
-        }
+    private void validateEmail(@NotNull String email) {
         if (this.userRepository.existsByEmail(email)) {
             throw new DuplicatedEmailException(email);
         }
     }
 
-    private UserEntity findUserByEmail(@NotNull String email) {
-        return this.userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)));
-    }
-
-    private UserEntity findUserByOAuthInfo(@NotNull String providerName, @NotNull String oauthUserId) {
-        return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
-            .orElseThrow(
-                    () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)));
+    private void validateUserRole(long requestUserId, long userId) {
+        UserEntity requestUser = this.userRepository.findById(requestUserId)
+            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", requestUserId)));
+        if (!(requestUser.getRole() == Role.ADMIN || requestUser.getId() == userId)) {
+            throw new AccessDeniedException("권한이 부족한 사용자입니다. ID: " + requestUserId);
+        }
     }
 
 }

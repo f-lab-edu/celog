@@ -30,7 +30,7 @@ class UserServiceTest {
     @Test
     void shouldCreateNewUser() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
         OauthUser oauthUser = new OauthUser("github", "12345678");
         CreateUserRequest request = new CreateUserRequest("John Doe", "john@example.com", oauthUser,
                 "https://profile/img-1234", AuthenticationType.OAUTH_GITHUB, Role.USER);
@@ -66,7 +66,8 @@ class UserServiceTest {
     @Test
     void shouldUpdateExistingUser() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
+        long requestUserId = 1L;
         UpdateUserRequest request = new UpdateUserRequest("John Smith", "john.smith@example.com", null, Role.ADMIN);
         UserEntity expectedUserEntity = UserEntity.builder()
             .id(userId)
@@ -81,11 +82,11 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUserEntity));
 
         // When
-        userService.updateUser(userId, request);
+        userService.updateUser(requestUserId, userId, request);
 
         // Then
         // 의존하는 Mock 객체가 올바르게 호출되었는가?
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(2)).findById(userId);
         verify(userRepository, times(1)).save(userEntityCaptor.capture());
 
         UserEntity capturedUserEntity = userEntityCaptor.getValue();
@@ -99,21 +100,24 @@ class UserServiceTest {
     @Test
     void shouldDeleteExistingUser() {
         // Given
-        Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(true);
+        long userId = 1L;
+        long requestUserId = 1L;
+        UserEntity expectedUserEntity = UserEntity.builder().id(userId).role(Role.USER).build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUserEntity));
 
         // When
-        userService.deleteUser(userId);
+        userService.deleteUser(requestUserId, userId);
 
         // Then
-        verify(userRepository, times(1)).existsById(userId);
+        verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).deleteById(userId);
     }
 
     @Test
     void shouldReturnExistingUser() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
         UserEntity existingUserEntity = UserEntity.builder()
             .id(userId)
             .name("John Doe")
@@ -151,7 +155,7 @@ class UserServiceTest {
     @Test
     void shouldThrowUserNotFoundException() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
 
         doReturn(Optional.empty()).when(userRepository).findById(userId);
 
