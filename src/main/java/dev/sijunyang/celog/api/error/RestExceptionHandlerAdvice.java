@@ -28,7 +28,7 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(Exception ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
-                ex.getLocalizedMessage());
+                "알수없는 문제가 발생하였습니다.");
         response.setTitle("Un_Catched");
         // TODO response.setType(URI.create());
         return response;
