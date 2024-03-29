@@ -100,4 +100,18 @@ public class UserEntity extends BaseTimeEntity {
         return !(this.email == null && this.oauthUser == null);
     }
 
+    public UserDto toUserDto() {
+        return UserDto.builder()
+            .id(this.getId())
+            .name(this.getName())
+            .email(this.getEmail())
+            .profileUrl(this.getProfileUrl())
+            .oauthUser(this.getOauthUser())
+            .authenticationType(this.getAuthenticationType())
+            .role(this.getRole())
+            .modifiedAt(this.getModifiedAt())
+            .createdAt(this.getCreatedAt())
+            .build();
+    }
+
 }
