@@ -8,8 +8,8 @@ import dev.sijunyang.celog.core.global.error.UnauthenticatedException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -17,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  *
  * @author Sijun Yang
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
     /**
@@ -28,7 +28,7 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(Exception ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
-                ex.getLocalizedMessage());
+                "알수없는 문제가 발생하였습니다.");
         response.setTitle("Un_Catched");
         // TODO response.setType(URI.create());
         return response;
