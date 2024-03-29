@@ -141,6 +141,48 @@ class UserServiceTest {
     }
 
     @Test
+    void existUserByEmail_ShouldReturnTrueWhenUserExists() {
+        // Given
+        String email = "test@example.com";
+        when(userRepository.existsByEmail(email)).thenReturn(true);
+
+        // When & Then
+        assertTrue(userService.existUserByEmail(email));
+    }
+
+    @Test
+    void existUserByEmail_ShouldReturnFalseWhenUserDoesNot() {
+        // Given
+        String email = "test@example.com";
+        when(userRepository.existsByEmail(email)).thenReturn(false);
+
+        // When & Then
+        assertFalse(userService.existUserByEmail(email));
+    }
+
+    @Test
+    void existUserByOAuthInfo_ShouldReturnTrueWhenUserExists() {
+        // Given
+        String providerName = "google";
+        String oauthUserId = "1234567890";
+        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)).thenReturn(true);
+
+        // When & Then
+        assertTrue(userService.existUserByOAuthInfo(providerName, oauthUserId));
+    }
+
+    @Test
+    void existUserByOAuthInfo_ShouldReturnFalseWhenUserDoesNotExist() {
+        // Given
+        String providerName = "google";
+        String oauthUserId = "1234567890";
+        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)).thenReturn(false);
+
+        // When & Then
+        assertFalse(userService.existUserByOAuthInfo(providerName, oauthUserId));
+    }
+
+    @Test
     void shouldThrowDuplicatedEmailException() {
         // Given
         CreateUserRequest request = new CreateUserRequest("John Doe", "john@example.com", null,

@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service
@@ -96,6 +95,15 @@ public class UserService {
     }
 
     /**
+     * 사용자 이메일로 사용자의 존재 여부를 확인합니다.
+     * @param email 조회할 사용자 이메일
+     * @return 사용자가 있으면 ture, 아니면 false
+     */
+    public boolean existUserByEmail(@NotNull String email) {
+        return this.userRepository.existsByEmail(email);
+    }
+
+    /**
      * OAuth 정보로 사용자 정보를 조회합니다.
      * @param providerName oauth 제공자 이름
      * @param oauthUserId oauth 사용자 ID
@@ -106,6 +114,17 @@ public class UserService {
             .orElseThrow(
                     () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)))
             .toUserDto();
+    }
+
+    /**
+     * 사용자 이메일로 사용자의 존재 여부를 확인합니다.
+     * @param providerName oauth 제공자 이름
+     * @param oauthUserId oauth 사용자 ID
+     * @return 사용자가 있으면 ture, 아니면 false
+     */
+    public boolean existUserByOAuthInfo(@NotNull String providerName, @NotNull String oauthUserId) {
+        return this.userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName,
+                oauthUserId);
     }
 
     /**
