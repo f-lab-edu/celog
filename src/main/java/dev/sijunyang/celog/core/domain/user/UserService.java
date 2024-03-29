@@ -95,7 +95,7 @@ public class UserService {
     }
 
     /**
-     * 사용자 이메일로 사용자의 존재 여부를 확인합니다.
+     * OAuth 정보로 사용자의 존재 여부를 확인합니다.
      * @param email 조회할 사용자 이메일
      * @return 사용자가 있으면 ture, 아니면 false
      */
