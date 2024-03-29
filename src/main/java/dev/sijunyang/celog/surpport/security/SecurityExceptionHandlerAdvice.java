@@ -3,6 +3,7 @@ package dev.sijunyang.celog.surpport.security;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,14 @@ public class SecurityExceptionHandlerAdvice {
     public ProblemDetail handleException(InternalAuthenticationServiceException ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
                 "인증 중 서버 내부적인 문제가 발생하였습니다.");
+        response.setTitle("Authentication_Service_Exception");
+        return response;
+    }
+
+    @ExceptionHandler(AuthenticationServiceException.class)
+    public ProblemDetail handleException(AuthenticationServiceException ex) {
+        ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+                "인증 중 서버 외부적인 문제가 발생하였습니다.");
         response.setTitle("Authentication_Service_Exception");
         return response;
     }
