@@ -10,7 +10,9 @@ spring:
             client-secret: ${github-client-secret}
             redirect-uri: http://localhost:8080/login/oauth2/code/github
   jpa:
-    generate-ddl: on
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
