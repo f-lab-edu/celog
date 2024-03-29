@@ -165,7 +165,8 @@ class UserServiceTest {
         // Given
         String providerName = "google";
         String oauthUserId = "1234567890";
-        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)).thenReturn(true);
+        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId))
+            .thenReturn(true);
 
         // When & Then
         assertTrue(userService.existUserByOAuthInfo(providerName, oauthUserId));
@@ -176,7 +177,8 @@ class UserServiceTest {
         // Given
         String providerName = "google";
         String oauthUserId = "1234567890";
-        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)).thenReturn(false);
+        when(userRepository.existsByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId))
+            .thenReturn(false);
 
         // When & Then
         assertFalse(userService.existUserByOAuthInfo(providerName, oauthUserId));
