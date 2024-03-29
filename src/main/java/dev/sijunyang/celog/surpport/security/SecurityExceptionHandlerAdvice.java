@@ -7,7 +7,6 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * Spring Security FilterChain에서 발생하는 예외를 처리하기 위한 클래스입니다. 다른 웹 예외와 동일한 방식으로 관리하기 위해 사용합니다.
@@ -23,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 // 이 객체가 예외처리하는 예외들은 인증/보안과 관련된 기능들이므로 의도하고 던지는 구체적인 예외가 아닌 이상,
 // 클라이언트에게 정보를 노출하지 않아야 한다.
 @RestControllerAdvice
-public class SecurityExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
+public class SecurityExceptionHandlerAdvice {
 
     @ExceptionHandler(RuntimeException.class)
     public ProblemDetail handleException(RuntimeException ex) {
