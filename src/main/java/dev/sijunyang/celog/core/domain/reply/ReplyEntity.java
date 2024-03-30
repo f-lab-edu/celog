@@ -63,4 +63,16 @@ public class ReplyEntity extends BaseTimeEntity {
         this.superReplyId = superReplyId;
     }
 
+    public ReplyDto tooReplyDto() {
+        return ReplyDto.builder()
+            .replyId(this.getId())
+            .content(this.getContent())
+            .userId(this.getUserId())
+            .postId(this.getPostId())
+            .superReplyId(this.getSuperReplyId())
+            .modifiedAt(this.getModifiedAt())
+            .createdAt(this.getCreatedAt())
+            .build();
+    }
+
 }
