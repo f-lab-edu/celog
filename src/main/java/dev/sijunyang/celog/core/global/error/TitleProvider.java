@@ -5,7 +5,7 @@ package dev.sijunyang.celog.core.global.error;
  *
  * @author Sijun Yang
  */
-interface TitleProvider {
+public interface TitleProvider {
 
     /**
      * 예외 타입을 식별할 수 있는 고유한 문자열을 반환합니다.
