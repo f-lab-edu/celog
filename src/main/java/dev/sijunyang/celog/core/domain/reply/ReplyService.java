@@ -78,6 +78,14 @@ public class ReplyService {
     }
 
     /**
+     * 특정 게시글의 모든 댓글을 삭제합니다. 사용자의 요청이 아닌 게시글이 삭제될 때 실행됩니다.
+     * @param postId 삭제할 댓글 ID
+     */
+    public void deleteAllByPostId(long postId) {
+        this.replyRepository.deleteAllByPostId(postId);
+    }
+
+    /**
      * 특정 게시글에 달린 depth가 0인(글에 대한 댓글) 댓글을 가져옵니다.
      * @param requestUserId 댓글을 조회하려는 사용자 ID
      * @param postId 조회할 게시글 ID

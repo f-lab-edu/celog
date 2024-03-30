@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.sijunyang.celog.core.domain.reply.ReplyService;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
 import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +25,8 @@ public class PostService {
     private final PostRepository postRepository;
 
     private final UserService userService;
+
+    private final ReplyService replyService;
 
     /**
      * 새로운 게시글을 생성합니다.
@@ -67,13 +71,15 @@ public class PostService {
     }
 
     /**
-     * 게시글을 삭제합니다. 어드민 혹은 글을 소유한 사용자만 수행할 수 있습니다.
+     * 게시글을 삭제합니다. 게시글의 댓글도 함꼐 삭제됩니다. 어드민 혹은 글을 소유한 사용자만 수행할 수 있습니다.
      * @param requestUserId 게시글을 삭제하려는 사용자 ID
      * @param postId 삭제할 게시글 ID
      */
+    @Transactional
     public void deletePost(long requestUserId, long postId) {
         PostEntity postEntity = getById(postId);
         validUserIsSelfOrAdmin(requestUserId, postEntity.getUserId());
+        this.replyService.deleteAllByPostId(postId);
         this.postRepository.delete(postEntity);
     }
 
