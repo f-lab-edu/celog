@@ -78,7 +78,7 @@ public class PostService {
     public void deletePost(long requestUserId, long postId) {
         PostEntity postEntity = getById(postId);
         validUserIsSelfOrAdmin(requestUserId, postEntity.getUserId());
-        this.replyService.deleteAllByPostId(postId);
+        this.replyService.deleteAllByPostId(requestUserId, postId);
         this.postRepository.delete(postEntity);
     }
 

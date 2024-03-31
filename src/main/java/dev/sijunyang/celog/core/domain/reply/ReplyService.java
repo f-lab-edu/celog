@@ -1,16 +1,16 @@
 package dev.sijunyang.celog.core.domain.reply;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.sijunyang.celog.core.domain.post.PostDto;
 import dev.sijunyang.celog.core.domain.post.PostService;
 import dev.sijunyang.celog.core.domain.user.UserService;
-
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
 import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -73,15 +73,18 @@ public class ReplyService {
         ReplyEntity replyEntity = getById(replyId);
         // Post에 접근 불가능해도, 이미 작성한 글은 제거 가능해야 하므로 Post 접근 권한 검사는 하지 않는다. 실제 존재하는지만 확인.
         this.postService.validPostById(replyEntity.getPostId());
-        validDeletable(requestUserId, replyEntity);
+        validDeletable(requestUserId, replyEntity.getUserId());
         this.replyRepository.delete(replyEntity);
     }
 
     /**
      * 특정 게시글의 모든 댓글을 삭제합니다. 사용자의 요청이 아닌 게시글이 삭제될 때 실행됩니다.
-     * @param postId 삭제할 댓글 ID
+     * @param requestUserId 글과 함께 모든 댓글을 삭제하려는 사용자 ID
+     * @param postId 삭제할 게시글 ID
      */
-    public void deleteAllByPostId(long postId) {
+    public void deleteAllByPostId(long requestUserId, long postId) {
+        PostDto post = this.postService.getPost(requestUserId, postId);
+        validDeletable(requestUserId, post.userId());
         this.replyRepository.deleteAllByPostId(postId);
     }
 
@@ -104,8 +107,8 @@ public class ReplyService {
      * @return 해당 댓글에 달린 댓글 리스트
      */
     public List<ReplyDto> getAllBySuperId(long requestUserId, long superReplyId) {
-        ReplyEntity replyEntity = getById(superReplyId);
-        validPostAccessible(requestUserId, replyEntity.getPostId());
+        ReplyEntity spuerReplyEntity = getById(superReplyId);
+        validPostAccessible(requestUserId, spuerReplyEntity.getPostId());
         List<ReplyEntity> childReplies = this.replyRepository.findAllBySuperReplyId(superReplyId);
         return childReplies.stream().map(ReplyEntity::tooReplyDto).collect(Collectors.toList());
     }
@@ -122,8 +125,8 @@ public class ReplyService {
         }
     }
 
-    private void validDeletable(long requestUserId, ReplyEntity entity) {
-        this.userService.validUserIsSelfOrAdmin(requestUserId, entity.getUserId());
+    private void validDeletable(long requestUserId, long userId) {
+        this.userService.validUserIsSelfOrAdmin(requestUserId, userId);
     }
 
     private void validPostAccessible(long requestUserId, long postId) {
