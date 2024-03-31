@@ -89,13 +89,9 @@ public class PostService {
      * @return 게시글 DTO
      */
     public PostDto getPost(long requestUserId, long postId) {
-        PostEntity postEntity = getById(postId);
-        validUserId(requestUserId);
+        validateUserPostAccess(requestUserId, postId);
 
-        if (isUserAuthorized(requestUserId, postEntity)) {
-            throw new InsufficientAuthorizationException(
-                    "공개되지 않은 글은 어드민이나 본인만 확인 가능합니다. requestUserId: " + requestUserId + ", postId: " + postId);
-        }
+        PostEntity postEntity = getById(postId);
         return postEntity.mapToPostDto();
     }
 
@@ -104,11 +100,11 @@ public class PostService {
      * @param requestUserId 게시글을 조회하려는 사용자 ID
      * @param postId 조회할 게시글 ID
      */
-    public void validPost(long requestUserId, long postId) {
+    public void validateUserPostAccess(long requestUserId, long postId) {
         PostEntity postEntity = getById(postId);
         validUserId(requestUserId);
 
-        if (isUserAuthorized(requestUserId, postEntity)) {
+        if (isUserNotAuthorized(requestUserId, postEntity)) {
             throw new InsufficientAuthorizationException(
                     "공개되지 않은 글은 어드민이나 본인만 확인 가능합니다. requestUserId: " + requestUserId + ", postId: " + postId);
         }
@@ -172,7 +168,7 @@ public class PostService {
         return post.getReadStatus().equals(PublicationStatus.PUBLIC_PUBLISHED);
     }
 
-    private boolean isUserAuthorized(long requestUserId, PostEntity postEntity) {
+    private boolean isUserNotAuthorized(long requestUserId, PostEntity postEntity) {
         boolean isOwnPost = requestUserId == postEntity.getUserId();
         boolean isPublishedPost = isPublished(postEntity);
         boolean isAdminUser = this.userService.getUserById(requestUserId).getRole().equals(Role.ADMIN);

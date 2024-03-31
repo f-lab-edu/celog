@@ -127,7 +127,7 @@ public class ReplyService {
     }
 
     private void validPostAccessible(long requestUserId, long postId) {
-        this.postService.validPost(requestUserId, postId);
+        this.postService.validateUserPostAccess(requestUserId, postId);
     }
 
 }
