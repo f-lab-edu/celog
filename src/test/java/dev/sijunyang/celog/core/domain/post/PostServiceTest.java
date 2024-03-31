@@ -1,5 +1,8 @@
 package dev.sijunyang.celog.core.domain.post;
 
+import java.util.List;
+import java.util.Optional;
+
 import dev.sijunyang.celog.core.domain.reply.ReplyService;
 import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
@@ -7,6 +10,7 @@ import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
 import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,11 +19,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -46,15 +54,15 @@ class PostServiceTest {
         CreatePostRequest createPostRequest = new CreatePostRequest("Test Post", "This is a test post.",
                 PublicationStatus.DRAFTING);
 
-        doNothing().when(userService).validUserById(userId);
-        when(postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
+        doNothing().when(this.userService).validUserById(userId);
+        when(this.postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
-        postService.createPost(userId, createPostRequest);
+        this.postService.createPost(userId, createPostRequest);
 
         // Then
-        verify(postRepository, times(1)).save(postEntityCaptor.capture());
-        PostEntity capturedEntity = postEntityCaptor.getValue();
+        verify(this.postRepository, times(1)).save(this.postEntityCaptor.capture());
+        PostEntity capturedEntity = this.postEntityCaptor.getValue();
         assertEquals(createPostRequest.title(), capturedEntity.getTitle());
         assertEquals(createPostRequest.content(), capturedEntity.getContent());
         assertEquals(createPostRequest.readStatus(), capturedEntity.getReadStatus());
@@ -76,15 +84,15 @@ class PostServiceTest {
             .userId(userId)
             .build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        when(postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
+        when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
+        when(this.postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
-        postService.updatePost(userId, postId, updateRequest);
+        this.postService.updatePost(userId, postId, updateRequest);
 
         // Then
-        verify(postRepository, times(1)).save(postEntityCaptor.capture());
-        PostEntity capturedEntity = postEntityCaptor.getValue();
+        verify(this.postRepository, times(1)).save(this.postEntityCaptor.capture());
+        PostEntity capturedEntity = this.postEntityCaptor.getValue();
         assertEquals(postId, capturedEntity.getId());
         assertEquals(updateRequest.title(), capturedEntity.getTitle());
         assertEquals(updateRequest.content(), capturedEntity.getContent());
@@ -100,15 +108,15 @@ class PostServiceTest {
         long postId = 1L;
         PostEntity existingPostEntity = PostEntity.builder().id(postId).userId(userId).build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        doNothing().when(userService).validUserIsSelfOrAdmin(requestUserId, userId);
-        doNothing().when(replyService).deleteAllByPostId(postId);
+        when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
+        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, userId);
+        doNothing().when(this.replyService).deleteAllByPostId(requestUserId, postId);
 
         // When
-        postService.deletePost(userId, postId);
+        this.postService.deletePost(userId, postId);
 
         // Then
-        verify(postRepository, times(1)).delete(existingPostEntity);
+        verify(this.postRepository, times(1)).delete(existingPostEntity);
     }
 
     @Test
@@ -125,12 +133,12 @@ class PostServiceTest {
             .build();
         UserDto user = UserDto.builder().id(userId).role(Role.USER).build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        doNothing().when(userService).validUserById(userId);
-        when(userService.getUserById(userId)).thenReturn(user);
+        when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
+        doNothing().when(this.userService).validUserById(userId);
+        when(this.userService.getUserById(userId)).thenReturn(user);
 
         // When
-        PostDto retrievedPostDto = postService.getPost(userId, postId);
+        PostDto retrievedPostDto = this.postService.getPost(userId, postId);
 
         // Then
         assertNotNull(retrievedPostDto);
@@ -156,11 +164,11 @@ class PostServiceTest {
             .userId(userId)
             .build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        when(userService.getUserById(otherUserId)).thenReturn(otherUser);
+        when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
+        when(this.userService.getUserById(otherUserId)).thenReturn(otherUser);
 
         // When & Then
-        assertThrows(InsufficientAuthorizationException.class, () -> postService.getPost(otherUserId, postId));
+        assertThrows(InsufficientAuthorizationException.class, () -> this.postService.getPost(otherUserId, postId));
     }
 
     @Test
@@ -190,15 +198,15 @@ class PostServiceTest {
             .userId(otherUserId)
             .build();
 
-        when(postRepository.findAll()).thenReturn(List.of(publishedPost1, draftPost, publishedPost2));
+        when(this.postRepository.findAll()).thenReturn(List.of(publishedPost1, draftPost, publishedPost2));
 
         // When
-        List<PostSummaryDto> publishedPosts = postService.getAllPublishedPosts();
+        List<PostSummaryDto> publishedPosts = this.postService.getAllPublishedPosts();
 
         // Then
         assertEquals(2, publishedPosts.size());
-        assertTrue(publishedPosts.stream().anyMatch(p -> p.postId().equals(publishedPost1.getId())));
-        assertTrue(publishedPosts.stream().anyMatch(p -> p.postId().equals(publishedPost2.getId())));
+        assertTrue(publishedPosts.stream().anyMatch((p) -> p.postId().equals(publishedPost1.getId())));
+        assertTrue(publishedPosts.stream().anyMatch((p) -> p.postId().equals(publishedPost2.getId())));
     }
 
     @Test
@@ -214,15 +222,15 @@ class PostServiceTest {
             .userId(userId)
             .build();
 
-        when(postRepository.findAllByUserId(userId)).thenReturn(List.of(userDraftPost));
-        doNothing().when(userService).validUserIsSelfOrAdmin(requestUserId, userId);
+        when(this.postRepository.findAllByUserId(userId)).thenReturn(List.of(userDraftPost));
+        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, userId);
 
         // When
-        List<PostSummaryDto> userPosts = postService.getAllPostsByUserId(requestUserId, userId);
+        List<PostSummaryDto> userPosts = this.postService.getAllPostsByUserId(requestUserId, userId);
 
         // Then
         assertEquals(1, userPosts.size());
-        assertTrue(userPosts.stream().anyMatch(p -> p.postId().equals(userDraftPost.getId())));
+        assertTrue(userPosts.stream().anyMatch((p) -> p.postId().equals(userDraftPost.getId())));
     }
 
     @Test
@@ -231,10 +239,10 @@ class PostServiceTest {
         long userId = 1L;
         long postId = 1L;
 
-        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+        when(this.postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(NotFoundResourceException.class, () -> postService.getPost(userId, postId));
+        assertThrows(NotFoundResourceException.class, () -> this.postService.getPost(userId, postId));
     }
 
 }
