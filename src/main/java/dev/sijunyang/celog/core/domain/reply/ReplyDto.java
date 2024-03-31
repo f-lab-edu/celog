@@ -3,7 +3,9 @@ package dev.sijunyang.celog.core.domain.reply;
 import java.time.LocalDateTime;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public final class ReplyDto {
 
     private Long replyId;
