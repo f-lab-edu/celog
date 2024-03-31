@@ -45,15 +45,9 @@ class PostServiceTest {
         long userId = 1L;
         CreatePostRequest createPostRequest = new CreatePostRequest("Test Post", "This is a test post.",
                 PublicationStatus.DRAFTING);
-        PostEntity createdPostEntity = PostEntity.builder()
-            .title(createPostRequest.title())
-            .content(createPostRequest.content())
-            .readStatus(createPostRequest.readStatus())
-            .userId(userId)
-            .build();
 
-        when(postRepository.save(any())).thenReturn(createdPostEntity);
         doNothing().when(userService).validUserById(userId);
+        when(postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
         postService.createPost(userId, createPostRequest);
@@ -81,16 +75,9 @@ class PostServiceTest {
             .readStatus(PublicationStatus.DRAFTING)
             .userId(userId)
             .build();
-        PostEntity updatedPostEntity = PostEntity.builder()
-            .id(postId)
-            .title(updateRequest.title())
-            .content(updateRequest.content())
-            .readStatus(updateRequest.readStatus())
-            .userId(userId)
-            .build();
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        when(postRepository.save(any())).thenReturn(updatedPostEntity);
+        when(postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
         postService.updatePost(userId, postId, updateRequest);
