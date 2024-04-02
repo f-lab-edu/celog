@@ -42,11 +42,11 @@ jobs:
       uses: madrapps/jacoco-report@v1.6.1
       with:
         paths: |
-          ${{ github.workspace }}/**/build/jacocoReportDir/test/jacocoTestReport.xml,
+          ${{ github.workspace }}/**/build/jacocoReportDir/test/jacocoTestReport.xml
         token: ${{ secrets.GITHUB_TOKEN }}
-        # 임시로 테스트 커버리지 제한 0으로 설정
-        min-coverage-overall: 0
-        min-coverage-changed-files: 0
+        # 임시로 테스트 커버리지 제한 1으로 설정
+        min-coverage-overall: 1
+        min-coverage-changed-files: 1
 
   dependency-submission:
 
