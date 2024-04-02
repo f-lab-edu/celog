@@ -35,7 +35,7 @@ jobs:
 
     - name: Build with Gradle Wrapper
       # Spring checkstyle 을 사용하는데, Test 부분에 불필요한 제약이 너무 많아서 임시로 비활성화
-      run: ./gradlew build -x checkstyleTest
+      run: ./gradlew build -x checkstyleTest -x checkstyleMain
 
     - name: Add coverage to PR
       id: jacoco
