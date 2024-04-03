@@ -1,8 +1,7 @@
 package dev.sijunyang.celog.core.domain.user;
 
 /**
- * OAuth2 제공자 서비스의 이름을 관리하는 클래스입니다.
- * OAuth2에서 반환받는 제공자 서비스의 이름 Token 값과 동일한 문자열을 가지고 있습니다.
+ * OAuth2 제공자 서비스의 이름을 관리하는 클래스입니다. OAuth2에서 반환받는 제공자 서비스의 이름 Token 값과 동일한 문자열을 가지고 있습니다.
  *
  * @author Sijun Yang
  */
@@ -23,4 +22,3 @@ public final class OAuth2Provider {
     }
 
 }
-
