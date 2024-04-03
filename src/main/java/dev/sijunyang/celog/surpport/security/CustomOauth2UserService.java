@@ -12,6 +12,7 @@ import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private static final String ROLE_PREFIX = "ROLE_";
@@ -36,10 +38,6 @@ public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final UserService userService;
 
     private final DefaultOAuth2UserService delegateOauth2UserService = new DefaultOAuth2UserService();
-
-    public CustomOauth2UserService(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
