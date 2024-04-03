@@ -1,5 +1,7 @@
 package dev.sijunyang.celog.surpport.security;
 
+import dev.sijunyang.celog.core.global.enums.AuthenticationType;
+
 public interface OAuthUserInfo {
 
     String getEmail();
@@ -7,5 +9,7 @@ public interface OAuthUserInfo {
     String getName();
 
     String getProfileUrl();
+
+    AuthenticationType getAuthenticationType();
 
 }

@@ -27,6 +27,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private static final String ROLE_PREFIX = "ROLE_";
+
+    private static final String CELOG_USER_ID = "celog_user_id";
+
+    private static final String CELOG_ROLE = "celog_role";
+
     private final UserService userService;
 
     private final DefaultOAuth2UserService delegateOauth2UserService = new DefaultOAuth2UserService();
@@ -75,11 +81,12 @@ public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequ
         String oauthUserId = oAuthUserInfo.getName();
         String name = oAuthUserInfo.getName();
         String email = oAuthUserInfo.getEmail();
-        String avatarUrl = oAuthUserInfo.getProfileUrl();
+        String profileUrl = oAuthUserInfo.getProfileUrl();
+        AuthenticationType authenticationType = oAuthUserInfo.getAuthenticationType();
 
         OauthUser oauthUser = new OauthUser(providerName, oauthUserId);
-        CreateUserRequest createUserRequest = new CreateUserRequest(name, email, oauthUser, avatarUrl,
-                AuthenticationType.OAUTH_GITHUB, Role.USER);
+        CreateUserRequest createUserRequest = new CreateUserRequest(name, email, oauthUser, profileUrl,
+                authenticationType, Role.USER);
 
         this.userService.createUser(createUserRequest);
 
@@ -106,12 +113,11 @@ public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private OAuth2User createAuthenticationToken(UserDto userDto, OAuth2User oAuth2User) {
         Role role = userDto.getRole();
-        String nameAttributeKey = "celog_user_id";
-        Map<String, Object> attributes = new HashMap<>(Map.of("celog_user_id", userDto.getId(), "celog_role", role));
+        Map<String, Object> attributes = new HashMap<>(Map.of(CELOG_USER_ID, userDto.getId(), CELOG_ROLE, role));
         attributes.putAll(oAuth2User.getAttributes());
         Collection<GrantedAuthority> authorities = new ArrayList<>(oAuth2User.getAuthorities());
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
-        return new DefaultOAuth2User(authorities, attributes, nameAttributeKey);
+        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.name()));
+        return new DefaultOAuth2User(authorities, attributes, CELOG_USER_ID);
     }
 
 }
