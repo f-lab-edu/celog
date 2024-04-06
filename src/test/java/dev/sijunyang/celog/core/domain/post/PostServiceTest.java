@@ -6,6 +6,7 @@ import java.util.Optional;
 import dev.sijunyang.celog.core.domain.reply.ReplyService;
 import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
+import dev.sijunyang.celog.core.global.RequestUser;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
@@ -51,6 +52,7 @@ class PostServiceTest {
     void shouldCreateNewPost() {
         // Given
         long userId = 1L;
+        RequestUser requester = new RequestUser(userId, Role.USER);
         CreatePostRequest createPostRequest = new CreatePostRequest("Test Post", "This is a test post.",
                 PublicationStatus.DRAFTING);
 
@@ -58,7 +60,7 @@ class PostServiceTest {
         when(this.postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
-        this.postService.createPost(userId, createPostRequest);
+        this.postService.createPost(requester, createPostRequest);
 
         // Then
         verify(this.postRepository, times(1)).save(this.postEntityCaptor.capture());
@@ -73,6 +75,7 @@ class PostServiceTest {
     void shouldUpdateExistingPost() {
         // Given
         long userId = 1L;
+        RequestUser requester = new RequestUser(userId, Role.USER);
         long postId = 1L;
         UpdatePostRequest updateRequest = new UpdatePostRequest("Updated Title", "Updated Content",
                 PublicationStatus.PUBLIC_PUBLISHED);
@@ -88,7 +91,7 @@ class PostServiceTest {
         when(this.postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
-        this.postService.updatePost(userId, postId, updateRequest);
+        this.postService.updatePost(requester, postId, updateRequest);
 
         // Then
         verify(this.postRepository, times(1)).save(this.postEntityCaptor.capture());
@@ -105,15 +108,15 @@ class PostServiceTest {
         // Given
         long requestUserId = 1L;
         long userId = 1L;
+        RequestUser requester = new RequestUser(userId, Role.USER);
         long postId = 1L;
         PostEntity existingPostEntity = PostEntity.builder().id(postId).userId(userId).build();
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, userId);
         doNothing().when(this.replyService).deleteAllByPostId(requestUserId, postId);
 
         // When
-        this.postService.deletePost(userId, postId);
+        this.postService.deletePost(requester, postId);
 
         // Then
         verify(this.postRepository, times(1)).delete(existingPostEntity);
@@ -123,6 +126,7 @@ class PostServiceTest {
     void shouldReturnExistingPost() {
         // Given
         long userId = 1L;
+        RequestUser requester = new RequestUser(userId, Role.USER);
         long postId = 1L;
         PostEntity existingPostEntity = PostEntity.builder()
             .id(postId)
@@ -135,10 +139,9 @@ class PostServiceTest {
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
         doNothing().when(this.userService).validUserById(userId);
-        when(this.userService.getUserById(userId)).thenReturn(user);
 
         // When
-        PostDto retrievedPostDto = this.postService.getPost(userId, postId);
+        PostDto retrievedPostDto = this.postService.getPost(requester, postId);
 
         // Then
         assertNotNull(retrievedPostDto);
@@ -153,22 +156,22 @@ class PostServiceTest {
     void shouldThrowExceptionWhenUserCannotAccessPost() {
         // Given
         long postId = 1L;
-        long userId = 1L;
+        long requestUserId = 1L;
         long otherUserId = 2L;
-        UserDto otherUser = UserDto.builder().id(otherUserId).role(Role.USER).build();
-        PostEntity existingPostEntity = PostEntity.builder()
+        RequestUser otherUserRequester = new RequestUser(otherUserId, Role.USER);
+        PostEntity draftingPostEntity = PostEntity.builder()
             .id(postId)
             .title("Test Post")
             .content("This is a test post.")
             .readStatus(PublicationStatus.DRAFTING)
-            .userId(userId)
+            .userId(requestUserId)
             .build();
 
-        when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        when(this.userService.getUserById(otherUserId)).thenReturn(otherUser);
+        when(this.postRepository.findById(postId)).thenReturn(Optional.of(draftingPostEntity));
+        doNothing().when(this.userService).validUserById(otherUserId);
 
         // When & Then
-        assertThrows(InsufficientPermissionException.class, () -> this.postService.getPost(otherUserId, postId));
+        assertThrows(InsufficientPermissionException.class, () -> this.postService.getPost(otherUserRequester, postId));
     }
 
     @Test
@@ -213,20 +216,23 @@ class PostServiceTest {
     void shouldReturnAllPostsByUserId() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.ADMIN);
         long userId = 2L;
+        long postId = 1L;
         PostEntity userDraftPost = PostEntity.builder()
-            .id(1L)
+            .id(postId)
             .title("User Draft Post")
             .content("This is a draft post by the user.")
             .readStatus(PublicationStatus.DRAFTING)
             .userId(userId)
             .build();
 
+        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validUserById(userId);
         when(this.postRepository.findAllByUserId(userId)).thenReturn(List.of(userDraftPost));
-        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, userId);
 
         // When
-        List<PostSummaryDto> userPosts = this.postService.getAllPostsByUserId(requestUserId, userId);
+        List<PostSummaryDto> userPosts = this.postService.getAllPostsByUserId(requester, userId);
 
         // Then
         assertEquals(1, userPosts.size());
@@ -237,12 +243,13 @@ class PostServiceTest {
     void shouldThrowExceptionWhenPostNotFound() {
         // Given
         long userId = 1L;
+        RequestUser requester = new RequestUser(userId, Role.USER);
         long postId = 1L;
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(ResourceNotFoundException.class, () -> this.postService.getPost(userId, postId));
+        assertThrows(ResourceNotFoundException.class, () -> this.postService.getPost(requester, postId));
     }
 
 }
