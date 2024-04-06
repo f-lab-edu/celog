@@ -33,7 +33,7 @@ public class PostService {
      * @param createPostRequest 생성할 게시글 정보
      */
     public void createPost(long userId, @Valid CreatePostRequest createPostRequest) {
-        validUserId(userId);
+        validateUserId(userId);
         PostEntity postEntity = PostEntity.builder()
             .id(null)
             .title(createPostRequest.title())
@@ -77,7 +77,7 @@ public class PostService {
     @Transactional
     public void deletePost(long requestUserId, long postId) {
         PostEntity postEntity = getById(postId);
-        validUserIsSelfOrAdmin(requestUserId, postEntity.getUserId());
+        validateUserIsSelfOrAdmin(requestUserId, postEntity.getUserId());
         this.replyService.deleteAllByPostId(requestUserId, postId);
         this.postRepository.delete(postEntity);
     }
@@ -102,9 +102,9 @@ public class PostService {
      */
     public void validateUserPostAccess(long requestUserId, long postId) {
         PostEntity postEntity = getById(postId);
-        validUserId(requestUserId);
+        validateUserId(requestUserId);
 
-        if (isUserNotAuthorized(requestUserId, postEntity)) {
+        if (!isPostAccessible(requestUserId, postEntity)) {
             throw new InsufficientPermissionException(
                     "공개되지 않은 글은 어드민이나 본인만 확인 가능합니다. requestUserId: " + requestUserId + ", postId: " + postId);
         }
@@ -142,7 +142,7 @@ public class PostService {
      * @return 사용자가 작성한 요약 게시글 리스트
      */
     public List<PostSummaryDto> getAllPostsByUserId(long requestUserId, long userId) {
-        validUserIsSelfOrAdmin(requestUserId, userId);
+        validateUserIsSelfOrAdmin(requestUserId, userId);
         return this.postRepository.findAllByUserId(userId)
             .stream()
             .map(PostEntity::mapToPostSummaryDto)
@@ -153,7 +153,7 @@ public class PostService {
      * 게시글이 존재하는지 검사합니다.
      * @param postId 조회할 게시글 ID
      */
-    public void validPostById(long postId) {
+    public void validatePostById(long postId) {
         if (!this.postRepository.existsById(postId)) {
             throw new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId);
         }
@@ -168,11 +168,20 @@ public class PostService {
         return post.getReadStatus().equals(PublicationStatus.PUBLIC_PUBLISHED);
     }
 
-    private boolean isUserNotAuthorized(long requestUserId, PostEntity postEntity) {
-        boolean isOwnPost = requestUserId == postEntity.getUserId();
-        boolean isPublishedPost = isPublished(postEntity);
-        boolean isAdminUser = this.userService.getUserById(requestUserId).getRole().equals(Role.ADMIN);
-        return !isOwnPost && !isPublishedPost && !isAdminUser;
+    private boolean isPostAccessible(long requesterUserId, PostEntity postEntity) {
+        // when admin
+        if (this.userService.getUserById(requesterUserId).getRole().equals(Role.ADMIN)) {
+            return true;
+        }
+        // when owner
+        if (requesterUserId == postEntity.getUserId()) {
+            return true;
+        }
+        // when published
+        if (isPublished(postEntity)) {
+            return true;
+        }
+        return false;
     }
 
     private PostEntity getById(long postId) {
@@ -180,11 +189,11 @@ public class PostService {
             .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId));
     }
 
-    private void validUserId(long userId) {
+    private void validateUserId(long userId) {
         this.userService.validUserById(userId);
     }
 
-    private void validUserIsSelfOrAdmin(long requestUserId, long userId) {
+    private void validateUserIsSelfOrAdmin(long requestUserId, long userId) {
         this.userService.validUserIsSelfOrAdmin(requestUserId, userId);
     }
 
