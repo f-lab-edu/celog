@@ -4,8 +4,8 @@ import dev.sijunyang.celog.core.domain.post.PostDto;
 import dev.sijunyang.celog.core.domain.post.PostService;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
-import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
-import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -216,7 +216,7 @@ class ReplyServiceTest {
 
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.empty());
         // When & Then
-        assertThrows(NotFoundResourceException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> this.replyService.updateReply(requestUserId, replyId, updateReplyRequest));
     }
 
@@ -238,7 +238,7 @@ class ReplyServiceTest {
         doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
 
         // When & Then
-        assertThrows(InsufficientAuthorizationException.class,
+        assertThrows(InsufficientPermissionException.class,
                 () -> this.replyService.updateReply(requestUserId, replyId, updateReplyRequest));
     }
 

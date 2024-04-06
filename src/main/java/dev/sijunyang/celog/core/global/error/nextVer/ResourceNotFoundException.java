@@ -7,19 +7,19 @@ import dev.sijunyang.celog.core.global.error.TitleProvider;
  *
  * @author Sijun Yang
  */
-public class NotFoundResourceException extends RuntimeException implements TitleProvider {
+public class ResourceNotFoundException extends RuntimeException implements TitleProvider {
 
-    public NotFoundResourceException(String message) {
+    public ResourceNotFoundException(String message) {
         super(message);
     }
 
-    public NotFoundResourceException(String message, Throwable cause) {
+    public ResourceNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
     @Override
     public String getTitle() {
-        return "Not_Found_Resource";
+        return "Resource_Not_Found";
     }
 
 }

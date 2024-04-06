@@ -7,19 +7,19 @@ import dev.sijunyang.celog.core.global.error.TitleProvider;
  *
  * @author Sijun Yang
  */
-public class InsufficientAuthorizationException extends RuntimeException implements TitleProvider {
+public class InsufficientPermissionException extends RuntimeException implements TitleProvider {
 
-    public InsufficientAuthorizationException(String message) {
+    public InsufficientPermissionException(String message) {
         super(message);
     }
 
-    public InsufficientAuthorizationException(String message, Throwable cause) {
+    public InsufficientPermissionException(String message, Throwable cause) {
         super(message, cause);
     }
 
     @Override
     public String getTitle() {
-        return "Insufficient_Authorization";
+        return "Insufficient_Permission";
     }
 
 }

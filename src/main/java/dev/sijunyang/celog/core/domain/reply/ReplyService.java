@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import dev.sijunyang.celog.core.domain.post.PostDto;
 import dev.sijunyang.celog.core.domain.post.PostService;
 import dev.sijunyang.celog.core.domain.user.UserService;
-import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
-import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -115,12 +115,12 @@ public class ReplyService {
 
     private ReplyEntity getById(long replyId) {
         return this.replyRepository.findById(replyId)
-            .orElseThrow(() -> new NotFoundResourceException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. replyId: " + replyId));
+            .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. replyId: " + replyId));
     }
 
     private void validUpdatable(long requestUserId, ReplyEntity entity) {
         if (!entity.getUserId().equals(requestUserId)) {
-            throw new InsufficientAuthorizationException(
+            throw new InsufficientPermissionException(
                     "작성자 본인만 댓글을 수정할 수 있습니다. requestUserId: " + requestUserId + ", replyId: " + entity.getId());
         }
     }

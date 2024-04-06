@@ -8,8 +8,8 @@ import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
-import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
-import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -168,7 +168,7 @@ class PostServiceTest {
         when(this.userService.getUserById(otherUserId)).thenReturn(otherUser);
 
         // When & Then
-        assertThrows(InsufficientAuthorizationException.class, () -> this.postService.getPost(otherUserId, postId));
+        assertThrows(InsufficientPermissionException.class, () -> this.postService.getPost(otherUserId, postId));
     }
 
     @Test
@@ -242,7 +242,7 @@ class PostServiceTest {
         when(this.postRepository.findById(postId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(NotFoundResourceException.class, () -> this.postService.getPost(userId, postId));
+        assertThrows(ResourceNotFoundException.class, () -> this.postService.getPost(userId, postId));
     }
 
 }

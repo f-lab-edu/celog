@@ -7,8 +7,8 @@ import dev.sijunyang.celog.core.domain.reply.ReplyService;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
-import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
-import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +54,7 @@ public class PostService {
         PostEntity oldPostEntity = getById(postId);
 
         if (requestUserId != oldPostEntity.getUserId()) {
-            throw new InsufficientAuthorizationException(
+            throw new InsufficientPermissionException(
                     "게시글을 소유한 사용자만 수행할 수 있습니다. requestUserId: " + requestUserId + ", postId: " + postId);
         }
 
@@ -105,7 +105,7 @@ public class PostService {
         validUserId(requestUserId);
 
         if (isUserNotAuthorized(requestUserId, postEntity)) {
-            throw new InsufficientAuthorizationException(
+            throw new InsufficientPermissionException(
                     "공개되지 않은 글은 어드민이나 본인만 확인 가능합니다. requestUserId: " + requestUserId + ", postId: " + postId);
         }
     }
@@ -155,7 +155,7 @@ public class PostService {
      */
     public void validPostById(long postId) {
         if (!this.postRepository.existsById(postId)) {
-            throw new NotFoundResourceException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId);
+            throw new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId);
         }
     }
 
@@ -177,7 +177,7 @@ public class PostService {
 
     private PostEntity getById(long postId) {
         return this.postRepository.findById(postId)
-            .orElseThrow(() -> new NotFoundResourceException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId));
+            .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. postId: " + postId));
     }
 
     private void validUserId(long userId) {

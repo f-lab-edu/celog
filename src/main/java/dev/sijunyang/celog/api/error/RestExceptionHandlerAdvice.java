@@ -5,8 +5,8 @@ import dev.sijunyang.celog.core.global.error.ConflictException;
 import dev.sijunyang.celog.core.global.error.ForbiddenException;
 import dev.sijunyang.celog.core.global.error.NotFoundException;
 import dev.sijunyang.celog.core.global.error.UnauthenticatedException;
-import dev.sijunyang.celog.core.global.error.nextVer.InsufficientAuthorizationException;
-import dev.sijunyang.celog.core.global.error.nextVer.NotFoundResourceException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -102,13 +102,13 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * {@link InsufficientAuthorizationException} 발생 시 처리하는 핸들러 메서드입니다. 403 Forbidden 응답을
+     * {@link InsufficientPermissionException} 발생 시 처리하는 핸들러 메서드입니다. 403 Forbidden 응답을
      * 반환합니다.
      * @param ex 발생한 예외 객체
      * @return 예외 정보를 담은 ProblemDetail 객체
      */
-    @ExceptionHandler(InsufficientAuthorizationException.class)
-    public ProblemDetail handleException(InsufficientAuthorizationException ex) {
+    @ExceptionHandler(InsufficientPermissionException.class)
+    public ProblemDetail handleException(InsufficientPermissionException ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getLocalizedMessage());
         response.setTitle(ex.getTitle());
         // TODO response.setType(URI.create());
@@ -116,12 +116,12 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * {@link NotFoundResourceException} 발생 시 처리하는 핸들러 메서드입니다. 404 Not Found 응답을 반환합니다.
+     * {@link ResourceNotFoundException} 발생 시 처리하는 핸들러 메서드입니다. 404 Not Found 응답을 반환합니다.
      * @param ex 발생한 예외 객체
      * @return 예외 정보를 담은 ProblemDetail 객체
      */
-    @ExceptionHandler(NotFoundResourceException.class)
-    public ProblemDetail handleException(NotFoundResourceException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleException(ResourceNotFoundException ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getLocalizedMessage());
         response.setTitle(ex.getTitle());
         // TODO response.setType(URI.create());
