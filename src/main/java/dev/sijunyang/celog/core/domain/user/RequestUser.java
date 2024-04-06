@@ -1,4 +1,4 @@
-package dev.sijunyang.celog.core.global;
+package dev.sijunyang.celog.core.domain.user;
 
 import dev.sijunyang.celog.core.global.enums.Role;
 import jakarta.validation.constraints.NotNull;

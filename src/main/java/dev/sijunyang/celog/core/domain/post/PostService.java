@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.sijunyang.celog.core.domain.reply.ReplyService;
+import dev.sijunyang.celog.core.domain.user.RequestUser;
 import dev.sijunyang.celog.core.domain.user.UserService;
-import dev.sijunyang.celog.core.global.RequestUser;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
@@ -83,7 +83,7 @@ public class PostService {
         validateUserById(requester.userId());
         PostEntity postEntity = getById(postId);
         validateUserPostAccess(requester, postId);
-        this.replyService.deleteAllByPostId(requester.userId(), postId);
+        this.replyService.deleteAllByPostId(requester, postId);
         this.postRepository.delete(postEntity);
     }
 

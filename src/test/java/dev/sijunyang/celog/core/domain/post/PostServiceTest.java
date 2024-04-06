@@ -6,7 +6,7 @@ import java.util.Optional;
 import dev.sijunyang.celog.core.domain.reply.ReplyService;
 import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
-import dev.sijunyang.celog.core.global.RequestUser;
+import dev.sijunyang.celog.core.domain.user.RequestUser;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
@@ -113,7 +113,7 @@ class PostServiceTest {
         PostEntity existingPostEntity = PostEntity.builder().id(postId).userId(userId).build();
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        doNothing().when(this.replyService).deleteAllByPostId(requestUserId, postId);
+        doNothing().when(this.replyService).deleteAllByPostId(requester, postId);
 
         // When
         this.postService.deletePost(requester, postId);

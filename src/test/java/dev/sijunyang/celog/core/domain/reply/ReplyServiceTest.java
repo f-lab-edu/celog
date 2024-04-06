@@ -2,8 +2,10 @@ package dev.sijunyang.celog.core.domain.reply;
 
 import dev.sijunyang.celog.core.domain.post.PostDto;
 import dev.sijunyang.celog.core.domain.post.PostService;
+import dev.sijunyang.celog.core.domain.user.RequestUser;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import dev.sijunyang.celog.core.global.enums.PublicationStatus;
+import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
 import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
@@ -50,17 +52,19 @@ class ReplyServiceTest {
     void shouldCreateNewReply() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
 
         String content = "This is a test reply.";
         Long superReplyId = null;
         CreateReplyRequest createReplyRequest = new CreateReplyRequest(content, postId, superReplyId);
 
-        doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
+        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.save(any())).thenReturn(null); // 반환 값 사용하지 않음
 
         // When
-        this.replyService.createReply(requestUserId, createReplyRequest);
+        this.replyService.createReply(requester, createReplyRequest);
 
         // Then
         verify(this.replyRepository, times(1)).save(this.replyEntity.capture());
@@ -75,8 +79,8 @@ class ReplyServiceTest {
         // Given
         long replyId = 1L;
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
-        long userId = 1L;
         Long superReplyId = null;
 
         String content = "This is a updated reply.";
@@ -84,18 +88,19 @@ class ReplyServiceTest {
         ReplyEntity exisitngReplyEntity = ReplyEntity.builder()
             .id(replyId)
             .content(content)
-            .userId(userId)
+            .userId(requestUserId)
             .postId(postId)
             .superReplyId(superReplyId)
             .build();
 
+        doNothing().when(this.userService).validUserById(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(exisitngReplyEntity));
-        doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
+        doNothing().when(this.postService).validateUserPostAccess(requester, postId);
 
         when(this.replyRepository.save(any())).thenReturn(null); // 반환 값 사용하지 않음
 
         // When
-        this.replyService.updateReply(requestUserId, replyId, updateReplyRequest);
+        this.replyService.updateReply(requester, replyId, updateReplyRequest);
 
         // Then
         verify(this.replyRepository, times(1)).save(this.replyEntity.capture());
@@ -110,53 +115,56 @@ class ReplyServiceTest {
         // Given
         long replyId = 1L;
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
-        long userId = 1L;
-        ReplyEntity existingReplyEntity = ReplyEntity.builder().id(replyId).postId(postId).userId(userId).build();
+        ReplyEntity existingReplyEntity = ReplyEntity.builder()
+            .id(replyId)
+            .postId(postId)
+            .userId(requestUserId)
+            .build();
 
+        doNothing().when(this.userService).validUserById(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(existingReplyEntity));
-        doNothing().when(this.postService).validPostById(postId);
-        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, postId);
+        doNothing().when(this.postService).validatePostById(postId);
         doNothing().when(this.replyRepository).delete(any());
 
         // When
-        this.replyService.deleteReply(userId, replyId);
+        this.replyService.deleteReply(requester, replyId);
 
         // Then
         verify(this.replyRepository, times(1)).delete(existingReplyEntity);
         verify(this.replyRepository, times(1)).findById(replyId);
-        verify(this.postService, times(1)).validPostById(postId);
-        verify(this.userService, times(1)).validUserIsSelfOrAdmin(requestUserId, userId);
+        verify(this.postService, times(1)).validatePostById(postId);
     }
 
     @Test
     void shouldDeleteAllReplyByPost() {
         // Given
-        long replyId = 1L;
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
         long userId = 1L;
         PostDto existingPostDto = new PostDto(postId, "title", "content", PublicationStatus.PUBLIC_PUBLISHED, userId,
                 null, null);
 
-        when(this.postService.getPost(requestUserId, postId)).thenReturn(existingPostDto);
-        doNothing().when(this.userService).validUserIsSelfOrAdmin(requestUserId, userId);
+        doNothing().when(this.userService).validUserById(requestUserId);
+        when(this.postService.getPost(requester, postId)).thenReturn(existingPostDto);
         when(this.replyRepository.deleteAllByPostId(postId)).thenReturn(null); // 반환 값
                                                                                // 사용하지 않음
 
         // When
-        this.replyService.deleteAllByPostId(requestUserId, postId);
+        this.replyService.deleteAllByPostId(requester, postId);
 
         // Then
         verify(this.replyRepository, times(1)).deleteAllByPostId(postId);
-        verify(this.postService, times(1)).getPost(requestUserId, postId);
-        verify(this.userService, times(1)).validUserIsSelfOrAdmin(requestUserId, userId);
+        verify(this.postService, times(1)).getPost(requester, postId);
     }
 
     @Test
-    void shouldReturnAllZeroDepthReply() {
+    void shouldReturnRootReplies() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
         long user1Id = 1L;
         long user2Id = 2L;
@@ -166,20 +174,22 @@ class ReplyServiceTest {
                 ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(null).build(),
                 ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(null).build());
 
-        doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
+        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.findAllByPostIdAndSuperReplyIdIsNull(postId)).thenReturn(zeroDepthReplies);
 
         // When
-        List<ReplyDto> rt = this.replyService.getAllZeroDepthByPostId(requestUserId, postId);
+        List<ReplyDto> rt = this.replyService.getRootRepliesByPostId(requester, postId);
 
         // Then
         rt.forEach((replyDto) -> assertNull(replyDto.getSuperReplyId()));
     }
 
     @Test
-    void shouldReturnAllReplyBySuperId() {
+    void shouldReturnChildRepliesById() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long postId = 1L;
         long user1Id = 1L;
         long user2Id = 2L;
@@ -196,12 +206,13 @@ class ReplyServiceTest {
                 ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(superReplyId).build(),
                 ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(superReplyId).build());
 
+        doNothing().when(this.userService).validUserById(requestUserId);
         when(this.replyRepository.findById(superReplyId)).thenReturn(Optional.of(superReply));
-        doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
+        doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.findAllBySuperReplyId(postId)).thenReturn(zeroDepthReplies);
 
         // When
-        List<ReplyDto> rt = this.replyService.getAllBySuperId(requestUserId, postId);
+        List<ReplyDto> rt = this.replyService.getChildRepliesById(requester, postId);
 
         // Then
         rt.forEach((replyDto) -> assertEquals(superReplyId, replyDto.getSuperReplyId()));
@@ -211,19 +222,22 @@ class ReplyServiceTest {
     void shouldThrowExceptionWhenReplyNotExist() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long replyId = 1L;
         UpdateReplyRequest updateReplyRequest = new UpdateReplyRequest("content");
 
+        doNothing().when(this.userService).validUserById(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.empty());
         // When & Then
         assertThrows(ResourceNotFoundException.class,
-                () -> this.replyService.updateReply(requestUserId, replyId, updateReplyRequest));
+                () -> this.replyService.updateReply(requester, replyId, updateReplyRequest));
     }
 
     @Test
     void shouldThrowExceptionWhenAnotherUserUpdateReply() {
         // Given
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long anotherUserId = 2L;
         long replyId = 1L;
         long postId = 2L;
@@ -234,12 +248,13 @@ class ReplyServiceTest {
             .build();
         UpdateReplyRequest updateReplyRequest = new UpdateReplyRequest("content");
 
+        doNothing().when(this.userService).validUserById(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(exisitngReplyEntity));
-        doNothing().when(this.postService).validateUserPostAccess(requestUserId, postId);
+        doNothing().when(this.postService).validateUserPostAccess(requester, postId);
 
         // When & Then
         assertThrows(InsufficientPermissionException.class,
-                () -> this.replyService.updateReply(requestUserId, replyId, updateReplyRequest));
+                () -> this.replyService.updateReply(requester, replyId, updateReplyRequest));
     }
 
 }

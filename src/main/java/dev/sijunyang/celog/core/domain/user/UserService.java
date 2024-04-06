@@ -130,14 +130,4 @@ public class UserService {
         }
     }
 
-    /**
-     * 요청자와 해당 유저가 같거나 어드민 권한을 가지는지 확인합니다. 주로 수정/삭제 등 변경 작업의 권한을 확인하기 위해 사용합니다.
-     * @param requestUserId 요청을 보내는 사용자 ID
-     * @param userId 조회할 사용자 ID
-     * @throws UserNotFoundException 사용자를 찾을 수 없는 경우
-     */
-    public void validUserIsSelfOrAdmin(long requestUserId, long userId) {
-        validateUserRole(requestUserId, userId);
-    }
-
 }

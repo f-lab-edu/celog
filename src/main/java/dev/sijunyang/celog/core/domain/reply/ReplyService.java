@@ -5,10 +5,13 @@ import java.util.stream.Collectors;
 
 import dev.sijunyang.celog.core.domain.post.PostDto;
 import dev.sijunyang.celog.core.domain.post.PostService;
+import dev.sijunyang.celog.core.domain.user.RequestUser;
 import dev.sijunyang.celog.core.domain.user.UserService;
+import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
 import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -27,15 +30,17 @@ public class ReplyService {
 
     /**
      * 새로운 댓글을 생성합니다. 댓글을 생성하려는 게시글에 접근 가능해야 합니다.
-     * @param requestUserId 댓글을 생성하려는 사용자 ID
+     * @param requester 댓글을 생성하려는 사용자 정보
      * @param createReplyRequest 생성할 댓글 정보
      */
-    public void createReply(long requestUserId, @Valid CreateReplyRequest createReplyRequest) {
-        validPostAccessible(requestUserId, createReplyRequest.postId());
+    public void createReply(@NotNull @Valid RequestUser requester,
+            @NotNull @Valid CreateReplyRequest createReplyRequest) {
+        validateUserById(requester.userId());
+        validatePostAccessible(requester, createReplyRequest.postId());
         ReplyEntity replyEntity = ReplyEntity.builder()
             .id(null)
             .content(createReplyRequest.content())
-            .userId(requestUserId)
+            .userId(requester.userId())
             .postId(createReplyRequest.postId())
             .superReplyId(createReplyRequest.superReplyId())
             .build();
@@ -44,19 +49,21 @@ public class ReplyService {
 
     /**
      * 기존 댓글 정보를 수정합니다. 수정하려는 댓글이 달린 게시글에 접근 가능한 사용자이며, 작성자 본인만 수행 가능합니다.
-     * @param requestUserId 댓글을 수정하려는 사용자 ID
+     * @param requester 댓글을 수정하려는 사용자 정보
      * @param replyId 수정할 댓글 ID
      * @param updateRequest 수정된 댓글 정보
      */
-    public void updateReply(long requestUserId, long replyId, @Valid UpdateReplyRequest updateRequest) {
+    public void updateReply(@NotNull @Valid RequestUser requester, long replyId,
+            @NotNull @Valid UpdateReplyRequest updateRequest) {
+        validateUserById(requester.userId());
         ReplyEntity oldReplyEntity = getById(replyId);
-        validPostAccessible(requestUserId, oldReplyEntity.getPostId());
-        validUpdatable(requestUserId, oldReplyEntity);
+        validatePostAccessible(requester, oldReplyEntity.getPostId());
+        validateUpdatable(requester, oldReplyEntity);
 
         ReplyEntity newReplyEntity = ReplyEntity.builder()
             .id(oldReplyEntity.getId())
             .content(updateRequest.content())
-            .userId(requestUserId)
+            .userId(requester.userId())
             .postId(oldReplyEntity.getPostId())
             .superReplyId(oldReplyEntity.getSuperReplyId())
             .build();
@@ -66,50 +73,54 @@ public class ReplyService {
 
     /**
      * 댓글을 삭제합니다. 어드민 혹은 작성자 본인만 수행 가능합니다.
-     * @param requestUserId 댓글을 삭제하려는 사용자 ID
+     * @param requester 댓글을 삭제하려는 사용자 정보
      * @param replyId 삭제할 댓글 ID
      */
-    public void deleteReply(long requestUserId, long replyId) {
+    public void deleteReply(@NotNull @Valid RequestUser requester, long replyId) {
+        validateUserById(requester.userId());
         ReplyEntity replyEntity = getById(replyId);
         // Post에 접근 불가능해도, 이미 작성한 글은 제거 가능해야 하므로 Post 접근 권한 검사는 하지 않는다. 실제 존재하는지만 확인.
-        this.postService.validPostById(replyEntity.getPostId());
-        validDeletable(requestUserId, replyEntity.getUserId());
+        this.postService.validatePostById(replyEntity.getPostId());
+        validateDeletable(requester, replyEntity.getUserId());
         this.replyRepository.delete(replyEntity);
     }
 
     /**
      * 특정 게시글의 모든 댓글을 삭제합니다. 사용자의 요청이 아닌 게시글이 삭제될 때 실행됩니다.
-     * @param requestUserId 글과 함께 모든 댓글을 삭제하려는 사용자 ID
+     * @param requester 글과 함께 모든 댓글을 삭제하려는 사용자 정보
      * @param postId 삭제할 게시글 ID
      */
-    public void deleteAllByPostId(long requestUserId, long postId) {
-        PostDto post = this.postService.getPost(requestUserId, postId);
-        validDeletable(requestUserId, post.userId());
+    public void deleteAllByPostId(@NotNull @Valid RequestUser requester, long postId) {
+        validateUserById(requester.userId());
+        PostDto post = this.postService.getPost(requester, postId);
+        validateDeletable(requester, post.userId());
         this.replyRepository.deleteAllByPostId(postId);
     }
 
     /**
      * 특정 게시글에 달린 depth가 0인(글에 대한 댓글) 댓글을 가져옵니다.
-     * @param requestUserId 댓글을 조회하려는 사용자 ID
+     * @param requester 댓글을 조회하려는 사용자 정보
      * @param postId 조회할 게시글 ID
      * @return 해당 게시글에 달린 댓글 리스트
      */
-    public List<ReplyDto> getAllZeroDepthByPostId(long requestUserId, long postId) {
-        validPostAccessible(requestUserId, postId);
+    public List<ReplyDto> getRootRepliesByPostId(@NotNull @Valid RequestUser requester, long postId) {
+        validateUserById(requester.userId());
+        validatePostAccessible(requester, postId);
         List<ReplyEntity> rootReplies = this.replyRepository.findAllByPostIdAndSuperReplyIdIsNull(postId);
         return rootReplies.stream().map(ReplyEntity::tooReplyDto).toList();
     }
 
     /**
      * 특정 댓글에 대한 댓글을 가져옵니다.
-     * @param requestUserId 댓글을 조회하려는 사용자 ID
-     * @param superReplyId 조회할 댓글 ID
+     * @param requester 댓글을 조회하려는 사용자 정보
+     * @param parentReplyId 조회할 댓글 ID
      * @return 해당 댓글에 달린 댓글 리스트
      */
-    public List<ReplyDto> getAllBySuperId(long requestUserId, long superReplyId) {
-        ReplyEntity spuerReplyEntity = getById(superReplyId);
-        validPostAccessible(requestUserId, spuerReplyEntity.getPostId());
-        List<ReplyEntity> childReplies = this.replyRepository.findAllBySuperReplyId(superReplyId);
+    public List<ReplyDto> getChildRepliesById(@NotNull @Valid RequestUser requester, long parentReplyId) {
+        validateUserById(requester.userId());
+        ReplyEntity parentReplyEntity = getById(parentReplyId);
+        validatePostAccessible(requester, parentReplyEntity.getPostId());
+        List<ReplyEntity> childReplies = this.replyRepository.findAllBySuperReplyId(parentReplyId);
         return childReplies.stream().map(ReplyEntity::tooReplyDto).collect(Collectors.toList());
     }
 
@@ -118,19 +129,27 @@ public class ReplyService {
             .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. replyId: " + replyId));
     }
 
-    private void validUpdatable(long requestUserId, ReplyEntity entity) {
-        if (!entity.getUserId().equals(requestUserId)) {
+    private void validateUpdatable(RequestUser requester, ReplyEntity entity) {
+        if (!entity.getUserId().equals(requester.userId())) {
             throw new InsufficientPermissionException(
-                    "작성자 본인만 댓글을 수정할 수 있습니다. requestUserId: " + requestUserId + ", replyId: " + entity.getId());
+                    "작성자 본인만 댓글을 수정할 수 있습니다. requestUserId: " + requester.userId() + ", replyId: " + entity.getId());
         }
     }
 
-    private void validDeletable(long requestUserId, long userId) {
-        this.userService.validUserIsSelfOrAdmin(requestUserId, userId);
+    private void validateDeletable(RequestUser requester, long userId) {
+        if (requester.userId() == userId || requester.userRole().equals(Role.ADMIN)) {
+            return;
+        }
+        throw new InsufficientPermissionException(
+                "어드민이나 본인만 요청을 수행할 수 있습니다. requester: " + requester + "userId: " + userId);
     }
 
-    private void validPostAccessible(long requestUserId, long postId) {
-        this.postService.validateUserPostAccess(requestUserId, postId);
+    private void validatePostAccessible(RequestUser requester, long postId) {
+        this.postService.validateUserPostAccess(requester, postId);
+    }
+
+    private void validateUserById(long userId) {
+        this.userService.validUserById(userId);
     }
 
 }
