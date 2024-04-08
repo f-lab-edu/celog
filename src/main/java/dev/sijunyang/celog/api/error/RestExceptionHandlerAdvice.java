@@ -5,6 +5,8 @@ import dev.sijunyang.celog.core.global.error.ConflictException;
 import dev.sijunyang.celog.core.global.error.ForbiddenException;
 import dev.sijunyang.celog.core.global.error.NotFoundException;
 import dev.sijunyang.celog.core.global.error.UnauthenticatedException;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -94,6 +96,33 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ProblemDetail handleException(ForbiddenException ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getLocalizedMessage());
+        response.setTitle(ex.getTitle());
+        // TODO response.setType(URI.create());
+        return response;
+    }
+
+    /**
+     * {@link InsufficientPermissionException} 발생 시 처리하는 핸들러 메서드입니다. 403 Forbidden 응답을
+     * 반환합니다.
+     * @param ex 발생한 예외 객체
+     * @return 예외 정보를 담은 ProblemDetail 객체
+     */
+    @ExceptionHandler(InsufficientPermissionException.class)
+    public ProblemDetail handleException(InsufficientPermissionException ex) {
+        ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getLocalizedMessage());
+        response.setTitle(ex.getTitle());
+        // TODO response.setType(URI.create());
+        return response;
+    }
+
+    /**
+     * {@link ResourceNotFoundException} 발생 시 처리하는 핸들러 메서드입니다. 404 Not Found 응답을 반환합니다.
+     * @param ex 발생한 예외 객체
+     * @return 예외 정보를 담은 ProblemDetail 객체
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleException(ResourceNotFoundException ex) {
+        ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getLocalizedMessage());
         response.setTitle(ex.getTitle());
         // TODO response.setType(URI.create());
         return response;

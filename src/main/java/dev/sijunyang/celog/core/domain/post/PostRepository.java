@@ -1,5 +1,7 @@
 package dev.sijunyang.celog.core.domain.post;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -8,5 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Sijun Yang
  */
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
+
+    List<PostEntity> findAllByUserId(Long userId);
 
 }

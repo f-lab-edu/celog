@@ -1,5 +1,7 @@
 package dev.sijunyang.celog.core.domain.reply;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -8,5 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Sijun Yang
  */
 public interface ReplyRepository extends JpaRepository<ReplyEntity, Long> {
+
+    List<ReplyEntity> deleteAllByPostId(Long postId);
+
+    // depth 0 댓글을 가져온다.
+    List<ReplyEntity> findAllByPostIdAndSuperReplyIdIsNull(Long postId);
+
+    List<ReplyEntity> findAllBySuperReplyId(Long superReplyId);
 
 }

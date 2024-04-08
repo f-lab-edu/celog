@@ -67,4 +67,14 @@ public class PostEntity extends BaseTimeEntity {
         this.userId = userId;
     }
 
+    public PostDto mapToPostDto() {
+        return new PostDto(this.getId(), this.getTitle(), this.getContent(), this.getReadStatus(), this.getUserId(),
+                this.getModifiedAt(), this.getCreatedAt());
+    }
+
+    public PostSummaryDto mapToPostSummaryDto() {
+        return new PostSummaryDto(this.getId(), this.getTitle(), this.getUserId(), this.getModifiedAt(),
+                this.getCreatedAt());
+    }
+
 }

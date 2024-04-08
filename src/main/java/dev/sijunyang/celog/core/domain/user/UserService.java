@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -146,7 +145,7 @@ public class UserService {
         UserEntity requestUser = this.userRepository.findById(requestUserId)
             .orElseThrow(() -> new UserNotFoundException(Map.of("userId", requestUserId)));
         if (!(requestUser.getRole() == Role.ADMIN || requestUser.getId() == userId)) {
-            throw new AccessDeniedException("권한이 부족한 사용자입니다. ID: " + requestUserId);
+            throw new UserRequestDeniedException(requestUserId);
         }
     }
 
