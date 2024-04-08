@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Load environment variables
         id: load_env
         env:
@@ -32,4 +31,3 @@ jobs:
           # 추출한 환경 변수를 실제로 설정하기
           echo "Environment variables set:"
           env
-
