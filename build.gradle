@@ -64,6 +64,7 @@ dependencies {
 tasks.named('test') {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport' // test 이후 jacocoTestReport 실행
 }
 
 tasks.named('asciidoctor') {
@@ -78,17 +79,20 @@ jacocoTestReport {
         xml.required = true
         csv.required = false
     }
+    // 어차피 CI에서 검사할꺼라 해당 Task는 필요없음
+    // jacocoTestReport 이후 jacocoTestCoverageVerification 실행
+    //finalizedBy 'jacocoTestCoverageVerification'
 }
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            // TODO rule, limit 추가하기.
-            limit {
-            }
-        }
-    }
-}
+//
+//jacocoTestCoverageVerification {
+//    violationRules {
+//        rule {
+//            // TODO rule, limit 추가하기.
+//            limit {
+//            }
+//        }
+//    }
+//}
 
 
 // 커밋 컨벤션을 지키기 위한 commit-msg 스크립트를 local git hook에 적용하는 task
