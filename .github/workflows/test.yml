@@ -14,6 +14,13 @@ jobs:
           echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
       - name: echo env
         run: echo $GITHUB_ENV
+      - name: Set environment variables
+        shell: bash
+        run: |
+          # Read environment variables from $GITHUB_ENV file
+          set -o allexport
+          source $GITHUB_ENV
+          set +o allexport
       - name: print env
         run: |
           
