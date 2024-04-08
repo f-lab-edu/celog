@@ -12,11 +12,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: is has value
+        run: echo ${{ secrets.ENV_CONFIG }}
+
       - name: Create .env file
         run: |
-          jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "$SECRETS_CONTEXT" > .env
+          jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "ENV_CONFIG" > .env
         env:
-          SECRETS_CONTEXT: ${{ toJson(secrets.ENV_CONFIG) }}
+          ENV_CONFIG: ${{ toJson(secrets.ENV_CONFIG) }}
 
       - name: Set environment variables
         env:
