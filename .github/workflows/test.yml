@@ -13,7 +13,7 @@ jobs:
 
 
     steps:
-      - 
+    
       - name: Create .env file
         env:
           ENV_CONFIG: ${{ toJson(secrets.ENV_CONFIG) }}
