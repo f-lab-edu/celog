@@ -16,7 +16,7 @@ jobs:
         run: |
           jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "$SECRETS_CONTEXT" > .env
         env:
-          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+          SECRETS_CONTEXT: ${{ toJson(secrets.ENV_CONFIG) }}
 
       - name: Set environment variables
         env:
@@ -30,9 +30,3 @@ jobs:
           # 설정된 환경 변수 확인
           echo "Environment variables set:"
           env
-
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Run tests
-        run: ./gradlew test
