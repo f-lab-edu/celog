@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: is has value
+      - name: has value
         run: echo ${{ secrets.ENV_CONFIG }}
 
       - name: Create .env file
