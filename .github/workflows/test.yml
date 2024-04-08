@@ -11,6 +11,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+
     steps:
       - name: has value
         run: echo ${{ secrets.ENV_CONFIG }}
