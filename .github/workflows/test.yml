@@ -13,11 +13,23 @@ jobs:
     steps:
 
       - name: Load environment variables
+        id: load_env
         env:
           ENV_CONFIG: ${{ secrets.ENV_CONFIG }}
-          
-        # GitHub Secrets의 env.json 파일을 환경 변수로 가져오기
         run: |
-          echo "$ENV_CONFIG" | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]' >> $GITHUB_OUTPUT
-        
+          # GitHub Secrets의 env.json 파일을 읽어들이기
+          echo "$ENV_CONFIG" > env.json
+          
+          # env.json 파일에서 key-value 쌍 추출하기
+          for i in $(jq -r 'to_entries | map("\(.key)=\(.value)") | .[]' env.json); do
+            echo "$i" >> $GITHUB_OUTPUT
+          done
+
+      - name: Set environment variables
+        env:
+          ${{ steps.load_env.outputs.* }}
+        run: |
+          # 추출한 환경 변수를 실제로 설정하기
+          echo "Environment variables set:"
+          env
 
