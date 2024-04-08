@@ -22,7 +22,10 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ImageUploadServiceImpl implements ImageUploadService {
 
-    private static final List<String> supportExtensions = List.of("png", "svg", "jpg", "jpeg", "gif");
+    /**
+     * 지원하는 확장자 목록입니다.
+     */
+    public static final List<String> supportExtensions = List.of("png", "svg", "jpg", "jpeg", "gif");
 
     private final NcpProperties ncpProperties;
 
