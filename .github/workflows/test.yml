@@ -14,9 +14,11 @@ jobs:
       - name: Export variables from secret
         run: |
           ENV_JSON='${{ secrets.ENV_CONFIG }}'
-          echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+          for line in $(echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"'); do
+            export "$line"
+          done
 
-      - name: echo version
+      - name: echo value
         run: |
           echo "$NCP_BUCKET_NAME"
           echo "$NCP_ACCESS_KEY"
@@ -24,7 +26,6 @@ jobs:
 
       - name: Print Env
         run: |
-          
           # 설정된 환경 변수 확인
           echo "Environment variables set:"
           env
