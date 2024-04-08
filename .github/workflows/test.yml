@@ -1,0 +1,23 @@
+name: Test Environment
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Load environment variables
+        env:
+          ENV_CONFIG: ${{ secrets.ENV_CONFIG }}
+          
+        # GitHub Secrets의 env.json 파일을 환경 변수로 가져오기
+        run: |
+          echo "$ENV_CONFIG" | jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]' >> $GITHUB_OUTPUT
+        
+
