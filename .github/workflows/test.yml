@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Export variables from secret
         run: |
-          ENV_JSON='${{ secrets.APPSETTINGS_VARIABLES_FOR_TESTS }}'
+          ENV_JSON='${{ secrets.ENV_CONFIG }}'
           echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
       - name: echo version
