@@ -26,8 +26,9 @@ jobs:
 
       - name: Set environment variables
         env:
-          ${{ steps.load_env.outputs.* }}
+          ${{ toJson(steps.load_env.outputs) }}
         run: |
           # 추출한 환경 변수를 실제로 설정하기
           echo "Environment variables set:"
           env
+        
