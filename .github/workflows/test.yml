@@ -1,26 +1,22 @@
 name: Test Environment
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "*" ]
-
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Export variables from secret
+      - name: export variables from secret
         run: |
           ENV_JSON='${{ secrets.ENV_CONFIG }}'
-          for line in $(echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"'); do
-            export "$line"
-            echo "$line"
-          done
-
-      - name: Print Env
+          echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+      - name: echo env
+        run: echo $GITHUB_ENV
+      - name: print env
         run: |
+          
           # 설정된 환경 변수 확인
           echo "Environment variables set:"
           env
