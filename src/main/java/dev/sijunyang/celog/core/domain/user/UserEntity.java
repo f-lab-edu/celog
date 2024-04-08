@@ -3,6 +3,8 @@ package dev.sijunyang.celog.core.domain.user;
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
 import dev.sijunyang.celog.core.global.jpa.BaseTimeEntity;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -11,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -28,6 +32,8 @@ import org.springframework.lang.Nullable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "users") // user는 h2 예약어이므로 사용할 수 없음
+// 동일한 OAuth 사용자가 가입되지 않도록 복합 Unique 조건
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "oauth_provider_name", "oauth_user_id" }))
 public class UserEntity extends BaseTimeEntity {
 
     /**
@@ -55,6 +61,9 @@ public class UserEntity extends BaseTimeEntity {
      */
     @Nullable
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "oauthProviderName", column = @Column(name = "oauth_provider_name")),
+            @AttributeOverride(name = "oauthUserId", column = @Column(name = "oauth_user_id")) })
     private OauthUser oauthUser;
 
     /**
