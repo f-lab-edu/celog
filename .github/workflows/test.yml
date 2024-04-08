@@ -10,24 +10,14 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-
-
     steps:
-    
-      - name: Create .env file
-        env:
-          ENV_CONFIG: ${{ toJson(secrets.ENV_CONFIG) }}
+      - name: Export variables from secret
         run: |
-          echo "$ENV_CONFIG" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env
+          ENV_JSON='${{ secrets.APPSETTINGS_VARIABLES_FOR_TESTS }}'
+          echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
-      - name: Set environment variables
-        env:
-          ENV_FILE: .env
+      - name: Print Env
         run: |
-          # .env 파일에서 환경 변수 읽어들이기
-          set -a
-          . $ENV_FILE
-          set +a
           
           # 설정된 환경 변수 확인
           echo "Environment variables set:"
