@@ -17,7 +17,10 @@ jobs:
           echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
       - name: echo version
-        run: echo "$"
+        run: |
+          echo "$NCP_BUCKET_NAME"
+          echo "$NCP_ACCESS_KEY"
+          echo "$NCP_SECRET_KEY"
 
       - name: Print Env
         run: |
