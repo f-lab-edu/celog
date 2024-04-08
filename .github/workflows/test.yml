@@ -16,6 +16,9 @@ jobs:
           ENV_JSON='${{ secrets.APPSETTINGS_VARIABLES_FOR_TESTS }}'
           echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
+      - name: echo version
+        run: echo "$"
+
       - name: Print Env
         run: |
           
