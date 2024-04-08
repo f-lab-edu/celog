@@ -13,8 +13,8 @@ jobs:
 
 
     steps:
-      - name: has value
-        run: echo ${{ secrets.ENV_CONFIG }}
+#      - name: has value
+#        run: echo ${{ secrets.ENV_CONFIG }}
 
       - name: Create .env file
         run: |
