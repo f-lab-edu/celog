@@ -13,14 +13,12 @@ jobs:
 
 
     steps:
-#      - name: has value
-#        run: echo ${{ secrets.ENV_CONFIG }}
-
+      - 
       - name: Create .env file
-        run: |
-          jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "ENV_CONFIG" > .env
         env:
           ENV_CONFIG: ${{ toJson(secrets.ENV_CONFIG) }}
+        run: |
+          echo "$ENV_CONFIG" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env
 
       - name: Set environment variables
         env:
