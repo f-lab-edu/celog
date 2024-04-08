@@ -16,13 +16,8 @@ jobs:
           ENV_JSON='${{ secrets.ENV_CONFIG }}'
           for line in $(echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"'); do
             export "$line"
+            echo "$line"
           done
-
-      - name: echo value
-        run: |
-          echo "$NCP_BUCKET_NAME"
-          echo "$NCP_ACCESS_KEY"
-          echo "$NCP_SECRET_KEY"
 
       - name: Print Env
         run: |
