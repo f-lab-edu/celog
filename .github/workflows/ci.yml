@@ -43,6 +43,7 @@ jobs:
 
       - name: Install Docker Compose
         uses: hoverkraft-tech/compose-action@v2.0.0
+        run: ls -al
         with:
           compose-file: .compose.yaml
 
