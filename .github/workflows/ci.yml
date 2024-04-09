@@ -34,8 +34,9 @@ jobs:
           source $GITHUB_ENV
           set +o allexport
 
-      - uses: actions/checkout@v4
       - uses: crazy-max/ghaction-setup-docker@v3
+
+      - uses: actions/checkout@v4
         run: |
           docker -v
           docker-compose -v
