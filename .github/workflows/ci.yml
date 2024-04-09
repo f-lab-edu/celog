@@ -22,6 +22,8 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Install Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.0
 
       - name: export variables from secret
         run: |
