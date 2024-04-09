@@ -36,6 +36,9 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: crazy-max/ghaction-setup-docker@v3
+        run: |
+          docker -v
+          docker-compose -v
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
