@@ -12,14 +12,13 @@ import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionExcep
 import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 @Service
 @Validated
-@RequiredArgsConstructor
 public class ReplyService {
 
     private final ReplyRepository replyRepository;
@@ -27,6 +26,12 @@ public class ReplyService {
     private final PostService postService;
 
     private final UserService userService;
+
+    public ReplyService(ReplyRepository replyRepository, @Lazy PostService postService, UserService userService) {
+        this.replyRepository = replyRepository;
+        this.postService = postService;
+        this.userService = userService;
+    }
 
     /**
      * 새로운 댓글을 생성합니다. 댓글을 생성하려는 게시글에 접근 가능해야 합니다.
