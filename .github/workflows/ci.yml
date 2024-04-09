@@ -33,6 +33,8 @@ jobs:
           set -o allexport
           source $GITHUB_ENV
           set +o allexport
+          ls ${{ github.workspace }}
+          ls ${{ github.workspace }}/**/
 
       - uses: actions/checkout@v4
       - name: Set up JDK 17
