@@ -70,7 +70,8 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     }
 
     private boolean isSupportedFileExtension(String fileExtension) {
-        return supportExtensions.stream().anyMatch((supportExtension) -> Objects.equals(supportExtension, fileExtension));
+        return supportExtensions.stream()
+            .anyMatch((supportExtension) -> Objects.equals(supportExtension, fileExtension));
     }
 
 }
