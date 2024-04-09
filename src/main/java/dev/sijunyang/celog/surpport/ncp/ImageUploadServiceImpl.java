@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import dev.sijunyang.celog.core.domain.file.ImageUploadService;
@@ -25,7 +26,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     /**
      * 지원하는 확장자 목록입니다.
      */
-    public static final List<String> supportExtensions = List.of("png", "svg", "jpg", "jpeg", "gif");
+    public static final List<String> supportedExtensions = List.of("png", "svg", "jpg", "jpeg", "gif");
 
     private final NcpProperties ncpProperties;
 
@@ -34,12 +35,9 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     @Override
     public String execute(Resource resource) {
         String fileExtension = StringUtils.getFilenameExtension(resource.getFilename());
-        if (fileExtension == null) {
-            throw new IllegalArgumentException("file 확장자가 null이여서 요청을 처리할 수 없습니다.");
-        }
         if (!isSupportedFileExtension(fileExtension)) {
             throw new InvalidInputException(
-                    "지원하지 않는 file 확장자입니다. input: " + fileExtension + "supportExtensions: " + supportExtensions);
+                    "지원하지 않는 file 확장자입니다. input: " + fileExtension + "supportExtensions: " + supportedExtensions);
         }
 
         S3Resource s3Resource = this.s3Template.upload(this.ncpProperties.bucketName(), createFileName(fileExtension),
@@ -72,7 +70,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     }
 
     private boolean isSupportedFileExtension(String fileExtension) {
-        return supportExtensions.stream().anyMatch((supportExtension) -> supportExtension.equals(fileExtension));
+        return supportExtensions.stream().anyMatch((supportExtension) -> Objects.equals(supportExtension, fileExtension));
     }
 
 }

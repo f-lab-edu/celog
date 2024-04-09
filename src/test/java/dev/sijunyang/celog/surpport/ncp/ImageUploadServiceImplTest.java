@@ -67,7 +67,7 @@ class ImageUploadServiceImplTest {
         when(this.resource.getFilename()).thenReturn(filename + "." + fileExtension);
 
         // When & Then
-        assertFalse(ImageUploadServiceImpl.supportExtensions.contains(fileExtension));
+        assertFalse(ImageUploadServiceImpl.supportedExtensions.contains(fileExtension));
         assertThrows(InvalidInputException.class, () -> this.service.execute(this.resource));
     }
 
