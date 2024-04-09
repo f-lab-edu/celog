@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
-            // HTML을 보내거나 받지 않으므로 csrf를 방지하지 않는다.
+            // CSRF 토큰을 사용하는게 안전하나, 실제 서비스가 아니므로 당장은 신경쓰기 않기로 함
             .csrf(AbstractHttpConfigurer::disable)
             .oauth2Login(Customizer.withDefaults())
             .exceptionHandling((configurer) -> configurer.accessDeniedHandler(this.accessDeniedHandler)

@@ -6,6 +6,7 @@ import dev.sijunyang.celog.core.global.error.ForbiddenException;
 import dev.sijunyang.celog.core.global.error.NotFoundException;
 import dev.sijunyang.celog.core.global.error.UnauthenticatedException;
 import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.InvalidInputException;
 import dev.sijunyang.celog.core.global.error.nextVer.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -123,6 +124,19 @@ public class RestExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleException(ResourceNotFoundException ex) {
         ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getLocalizedMessage());
+        response.setTitle(ex.getTitle());
+        // TODO response.setType(URI.create());
+        return response;
+    }
+
+    /**
+     * {@link InvalidInputException} 발생 시 처리하는 핸들러 메서드입니다. 400 Bad Request 응답을 반환합니다.
+     * @param ex 발생한 예외 객체
+     * @return 예외 정보를 담은 ProblemDetail 객체
+     */
+    @ExceptionHandler(InvalidInputException.class)
+    public ProblemDetail handleException(InvalidInputException ex) {
+        ProblemDetail response = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
         response.setTitle(ex.getTitle());
         // TODO response.setType(URI.create());
         return response;

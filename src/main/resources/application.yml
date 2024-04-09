@@ -1,4 +1,9 @@
+server:
+  shutdown: graceful
 spring:
+  servlet:
+    multipart:
+      max-file-size: 1MB
   session:
     store-type: redis
   security:
@@ -8,11 +13,17 @@ spring:
           github:
             client-id: ${github-client-id}
             client-secret: ${github-client-secret}
-            redirect-uri: http://localhost:8080/login/oauth2/code/github
+            redirect-uri: ${redirect-uri}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+ncp:
+  region: ${ncp-region}
+  end-point: ${npc-end-point}
+  access-key: ${npc-access-key}
+  secret-key: ${npc-secret-key}
+  bucket-name: ${npc-bucket-name}
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

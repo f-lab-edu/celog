@@ -1,0 +1,24 @@
+server:
+  servlet:
+    session:
+      timeout: 60m
+      cookie:
+        # 도메인 적용 & SSL 적용 안된 상태
+        #domain: celog.com
+        #secure: true
+        max-age: 60m
+        http-only: true
+
+spring:
+  docker.compose.skip.in-tests: true # docker compose support 지원 안함
+  data:
+    redis:
+      host: ${celog-redis-host}
+      port: ${celog-redis-port}
+      password: ${celog-redis-password}
+      username: ${celog-redis-username}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${celog-mysql-url}
+    username: ${celog-mysql-username}
+    password: ${celog-mysql-password}
