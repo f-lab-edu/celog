@@ -8,7 +8,7 @@ services:
       - 'MYSQL_USER=myuser'
     ports:
       - '3306:3306' # 외부에서 값을 확인하기 위해서 포트포워딩
-  redis:
-    image: 'redis:7.2'
-    ports:
-      - '6379:6379' # 외부에서 값을 확인하기 위해서 포트포워딩
+#  redis:
+#    image: 'redis:7.2'
+#    ports:
+#      - '6379:6379' # 외부에서 값을 확인하기 위해서 포트포워딩
