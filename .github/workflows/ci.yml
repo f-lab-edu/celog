@@ -20,15 +20,15 @@ jobs:
 
       - name: Make test properties
         run: |
-          ls -al
+          curl -l https://www.naver.com/
           touch ./src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./src/main/resources/application-test.yml
 
       - name: Docker & Docker-compose setup
         uses: crazy-max/ghaction-setup-docker@v3
-#        run: |
-#          docker -v
-#          docker-compose -v
+        run: |
+          docker -v
+          docker-compose -v
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
