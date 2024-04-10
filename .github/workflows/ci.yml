@@ -21,8 +21,8 @@ jobs:
       - name: Make test properties
         run: |
           ls -al
-          touch ./celog/src/main/resources/application-test.yml
-          echo "${{ secrets.TEST_YML }}" > ./celog/src/main/resources/application-test.yml
+          touch ./src/main/resources/application-test.yml
+          echo "${{ secrets.TEST_YML }}" > ./src/main/resources/application-test.yml
 
       - name: Docker & Docker-compose setup
         uses: crazy-max/ghaction-setup-docker@v3
