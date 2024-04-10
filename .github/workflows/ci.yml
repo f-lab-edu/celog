@@ -20,6 +20,7 @@ jobs:
 
       - name: Make test properties
         run: |
+          ls -al
           touch ./celog/src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./celog/src/main/resources/application-test.yml
 
