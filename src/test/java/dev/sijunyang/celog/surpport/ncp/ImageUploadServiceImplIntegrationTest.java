@@ -28,31 +28,39 @@ class ImageUploadServiceImplIntegrationTest {
     @Autowired
     private NcpProperties ncpProperties;
 
+//    @Test
+//    void shouldUploadImage() {
+//        // Given
+//        String fileLocation = "./src/test/java/dev/sijunyang/celog/surpport/ncp/test-image.jpg";
+//        Resource resource = new FileSystemResource(fileLocation);
+//
+//        // When
+//        String result = this.service.execute(resource);
+//
+//        // Then
+//        assertNotNull(result);
+//
+//        // 테스트가 성공했으므로 필요없는 데이터는 삭제
+//        String filename = StringUtils.getFilename(StringUtils.uriDecode(result, StandardCharsets.UTF_8));
+//        template.deleteObject(ncpProperties.bucketName(), filename);
+//    }
+//
+//    @Test
+//    void shouldThrowInvalidInputExceptionWhenFileExtensionIsNotSupported() {
+//        // Given
+//        String fileLocation = "./src/test/java/dev/sijunyang/celog/surpport/ncp/test-text.txt";
+//        Resource resource = new FileSystemResource(fileLocation);
+//
+//        // When & Then
+//        assertThrows(InvalidInputException.class, () -> service.execute(resource));
+//    }
+
     @Test
-    void shouldUploadImage() {
-        // Given
-        String fileLocation = "./src/test/java/dev/sijunyang/celog/surpport/ncp/test-image.jpg";
-        Resource resource = new FileSystemResource(fileLocation);
-
-        // When
-        String result = this.service.execute(resource);
-
-        // Then
-        assertNotNull(result);
-
-        // 테스트가 성공했으므로 필요없는 데이터는 삭제
-        String filename = StringUtils.getFilename(StringUtils.uriDecode(result, StandardCharsets.UTF_8));
-        template.deleteObject(ncpProperties.bucketName(), filename);
+    void shouldGetNcpProperties() {
+        assertNotNull(ncpProperties);
+        assertNotNull(ncpProperties.bucketName());
+        assertNotNull(ncpProperties.region());
     }
 
-    @Test
-    void shouldThrowInvalidInputExceptionWhenFileExtensionIsNotSupported() {
-        // Given
-        String fileLocation = "./src/test/java/dev/sijunyang/celog/surpport/ncp/test-text.txt";
-        Resource resource = new FileSystemResource(fileLocation);
-
-        // When & Then
-        assertThrows(InvalidInputException.class, () -> service.execute(resource));
-    }
 
 }

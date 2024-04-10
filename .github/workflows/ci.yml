@@ -20,7 +20,7 @@ jobs:
 
       - name: Make test properties
         run: |
-          curl -l https://www.naver.com/
+        # curl -l https://www.naver.com/
           touch ./src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./src/main/resources/application-test.yml
 
