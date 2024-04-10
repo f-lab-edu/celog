@@ -1,5 +1,6 @@
 package dev.sijunyang.celog.surpport.ncp;
 
+import dev.sijunyang.celog.CelogApplication;
 import dev.sijunyang.celog.core.domain.user.UserEntity;
 import dev.sijunyang.celog.core.domain.user.UserRepository;
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
@@ -15,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes = {CelogApplication.class})
 class TestIntegrationTest {
 
     @Autowired
