@@ -14,10 +14,6 @@ spring:
             client-id: ${github-client-id}
             client-secret: ${github-client-secret}
             redirect-uri: ${redirect-uri}
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
 ncp:
   region: ${ncp-region}
   end-point: ${npc-end-point}

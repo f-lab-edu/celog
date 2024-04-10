@@ -22,17 +22,10 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: export variables from secret
-        run: |
-          ENV_JSON='${{ secrets.ENV_CONFIG }}'
-          echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
-
-      - name: set environment variables
-        shell: bash
-        run: |
-          set -o allexport
-          source $GITHUB_ENV
-          set +o allexport
+      - name: make test properties
+      - run: |
+          touch ./hellogsm-web/src/main/resources/application-test.yml
+          echo "${{ secrets.TEST_YML }}" > ./hellogsm-web/src/main/resources/application-test.yml
 
       - uses: crazy-max/ghaction-setup-docker@v3
 
