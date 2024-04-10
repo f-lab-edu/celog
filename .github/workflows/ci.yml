@@ -22,15 +22,17 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
       - name: make test properties
         run: |
           touch ./celog/src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./hellogsm-web/src/main/resources/application-test.yml
 
-      - uses: crazy-max/ghaction-setup-docker@v3
-
-      - uses: actions/checkout@v4
-      - run: |
+      - name: docker & docker-compose setup
+        uses: crazy-max/ghaction-setup-docker@v3
+        run: |
           docker -v
           docker-compose -v
 
