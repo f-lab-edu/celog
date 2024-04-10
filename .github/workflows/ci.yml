@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: make test properties
         run: |
-          touch ./hellogsm-web/src/main/resources/application-test.yml
+          touch ./celog/src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./hellogsm-web/src/main/resources/application-test.yml
 
       - uses: crazy-max/ghaction-setup-docker@v3
