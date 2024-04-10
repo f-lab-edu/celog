@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@SpringBootTest(classes = {CelogApplication.class})
+@SpringBootTest(classes = { CelogApplication.class })
 class TestIntegrationTest {
 
     @Autowired
