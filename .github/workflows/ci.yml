@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: make test properties
-      - run: |
+        run: |
           touch ./hellogsm-web/src/main/resources/application-test.yml
           echo "${{ secrets.TEST_YML }}" > ./hellogsm-web/src/main/resources/application-test.yml
 
