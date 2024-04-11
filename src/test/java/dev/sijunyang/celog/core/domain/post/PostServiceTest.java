@@ -56,7 +56,7 @@ class PostServiceTest {
         CreatePostRequest createPostRequest = new CreatePostRequest("Test Post", "This is a test post.",
                 PublicationStatus.DRAFTING);
 
-        doNothing().when(this.userService).validUserById(userId);
+        doNothing().when(this.userService).validateUserExistence(userId);
         when(this.postRepository.save(any())).thenReturn(null); // 반환 값을 사용하지 않음
 
         // When
@@ -138,7 +138,7 @@ class PostServiceTest {
         UserDto user = UserDto.builder().id(userId).role(Role.USER).build();
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.of(existingPostEntity));
-        doNothing().when(this.userService).validUserById(userId);
+        doNothing().when(this.userService).validateUserExistence(userId);
 
         // When
         PostDto retrievedPostDto = this.postService.getPost(requester, postId);
@@ -168,7 +168,7 @@ class PostServiceTest {
             .build();
 
         when(this.postRepository.findById(postId)).thenReturn(Optional.of(draftingPostEntity));
-        doNothing().when(this.userService).validUserById(otherUserId);
+        doNothing().when(this.userService).validateUserExistence(otherUserId);
 
         // When & Then
         assertThrows(InsufficientPermissionException.class, () -> this.postService.getPost(otherUserRequester, postId));
@@ -227,8 +227,8 @@ class PostServiceTest {
             .userId(userId)
             .build();
 
-        doNothing().when(this.userService).validUserById(requestUserId);
-        doNothing().when(this.userService).validUserById(userId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(userId);
         when(this.postRepository.findAllByUserId(userId)).thenReturn(List.of(userDraftPost));
 
         // When

@@ -154,7 +154,7 @@ public class ReplyService {
     }
 
     private void validateUserById(long userId) {
-        this.userService.validUserById(userId);
+        this.userService.validateUserExistence(userId);
     }
 
 }

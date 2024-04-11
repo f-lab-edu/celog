@@ -198,7 +198,7 @@ public class PostService {
     }
 
     private void validateUserById(long userId) {
-        this.userService.validUserById(userId);
+        this.userService.validateUserExistence(userId);
     }
 
     private void validateUserIsSelfOrAdmin(RequestUser requester, long userId) {

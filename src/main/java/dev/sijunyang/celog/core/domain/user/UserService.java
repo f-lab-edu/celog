@@ -3,6 +3,8 @@ package dev.sijunyang.celog.core.domain.user;
 import java.util.Map;
 
 import dev.sijunyang.celog.core.global.enums.Role;
+import dev.sijunyang.celog.core.global.error.nextVer.InsufficientPermissionException;
+import dev.sijunyang.celog.core.global.error.nextVer.InvalidInputException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class UserService {
      * @param request 사용자 정보
      */
     public void createUser(@NotNull @Valid CreateUserRequest request) {
-        validateEmail(request.email());
+        validateEmailUnique(request.email());
 
         UserEntity userEntity = UserEntity.builder()
             .name(request.name())
@@ -38,15 +40,16 @@ public class UserService {
 
     /**
      * 기존 사용자 정보를 수정합니다.
-     * @param requestUserId 수정을 요청하는 사용자 ID
+     * @param requester 수정을 요청하는 사용자 ID
      * @param userId 수정할 사용자 ID
      * @param request 수정된 사용자 정보
      */
-    public void updateUser(long requestUserId, long userId, @NotNull @Valid UpdateUserRequest request) {
-        validateUserRole(requestUserId, userId);
-        validateEmail(request.email());
+    public void updateUser(@NotNull @Valid RequestUser requester, long userId,
+            @NotNull @Valid UpdateUserRequest request) {
+        validateUserEditable(requester, userId);
+        validateEmailUnique(request.email());
         UserEntity oldUserEntity = this.userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+            .orElseThrow(() -> new InvalidInputException(createUserNotFoundErrorMessage(Map.of("userId", userId))));
 
         UserEntity newEntity = UserEntity.builder()
             .id(oldUserEntity.getId())
@@ -63,11 +66,11 @@ public class UserService {
 
     /**
      * 사용자를 삭제합니다.
-     * @param requestUserId 삭제를 요청하는 사용자 ID
+     * @param requester 삭제를 요청하는 사용자 ID
      * @param userId 삭제할 사용자 ID
      */
-    public void deleteUser(long requestUserId, long userId) {
-        validateUserRole(requestUserId, userId);
+    public void deleteUser(@NotNull @Valid RequestUser requester, long userId) {
+        validateUserEditable(requester, userId);
         this.userRepository.deleteById(userId);
     }
 
@@ -78,7 +81,7 @@ public class UserService {
      */
     public UserDto getUserById(long userId) {
         return this.userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)))
+            .orElseThrow(() -> new InvalidInputException(createUserNotFoundErrorMessage(Map.of("userId", userId))))
             .toUserDto();
     }
 
@@ -89,7 +92,7 @@ public class UserService {
      */
     public UserDto getUserByEmail(@NotNull String email) {
         return this.userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("email", email)))
+            .orElseThrow(() -> new InvalidInputException(createUserNotFoundErrorMessage(Map.of("email", email))))
             .toUserDto();
     }
 
@@ -110,8 +113,8 @@ public class UserService {
      */
     public UserDto getUserByOAuthInfo(@NotNull String providerName, @NotNull String oauthUserId) {
         return this.userRepository.findByOauthUser_OauthProviderNameAndOauthUser_OauthUserId(providerName, oauthUserId)
-            .orElseThrow(
-                    () -> new UserNotFoundException(Map.of("providerName", providerName, "oauthUserId", oauthUserId)))
+            .orElseThrow(() -> new InvalidInputException(
+                    createUserNotFoundErrorMessage(Map.of("providerName", providerName, "oauthUserId", oauthUserId))))
             .toUserDto();
     }
 
@@ -129,24 +132,31 @@ public class UserService {
     /**
      * 사용자가 존재하는지 검사합니다.
      * @param userId 조회할 사용자 ID
-     * @throws UserNotFoundException 사용자를 찾을 수 없는 경우
+     * @throws InvalidInputException 사용자를 찾을 수 없는 경우
      */
-    public void validUserById(long userId) {
-        this.userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(Map.of("userId", userId)));
+    public void validateUserExistence(long userId) {
+        if (!this.userRepository.existsById(userId)) {
+            throw new InvalidInputException("사용자의 ID가 유효하지 않습니다. userId: " + userId);
+        }
     }
 
-    private void validateEmail(@NotNull String email) {
+    private void validateEmailUnique(@NotNull String email) {
         if (this.userRepository.existsByEmail(email)) {
-            throw new DuplicatedEmailException(email);
+            throw new InvalidInputException("이미 존재하는 email 입니다. email: " + email);
         }
     }
 
-    private void validateUserRole(long requestUserId, long userId) {
-        UserEntity requestUser = this.userRepository.findById(requestUserId)
-            .orElseThrow(() -> new UserNotFoundException(Map.of("userId", requestUserId)));
-        if (!(requestUser.getRole() == Role.ADMIN || requestUser.getId() == userId)) {
-            throw new UserRequestDeniedException(requestUserId);
+    private void validateUserEditable(RequestUser requester, long userId) {
+        validateUserExistence(requester.userId());
+        validateUserExistence(userId);
+
+        if (!(requester.userRole() == Role.ADMIN || requester.userId() == userId)) {
+            throw new InsufficientPermissionException("요청하는 사용자의 권한이 부족합니다. requester: " + requester);
         }
+    }
+
+    private String createUserNotFoundErrorMessage(Map inputs) {
+        return "사용자를 찾을 수 없습니다. inputs: " + inputs;
     }
 
 }
