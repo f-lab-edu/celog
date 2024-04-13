@@ -18,6 +18,15 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  cloud:
+    aws:
+      s3:
+        endpoint: ${npc-end-point}
+        region: ${ncp-region}
+      credentials:
+        access-key: ${npc-access-key}
+        secret-key: ${npc-secret-key}
+
 ncp:
   region: ${ncp-region}
   end-point: ${npc-end-point}
