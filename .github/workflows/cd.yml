@@ -22,9 +22,10 @@ jobs:
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew jib \                                                                                                                                                                           INT ✘  7m 42s   22:59:11 
-          -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }} \
-          -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }} \
+        run: | 
+          ./gradlew jib 
+          -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }}
+          -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }}
           -Djib.to.auth.password=${{ secrets.NCP_SECRET_KEY }}
 
   pull_from_registry:
