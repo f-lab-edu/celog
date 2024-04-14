@@ -23,10 +23,10 @@ jobs:
 
       - name: Build with Gradle Wrapper
         run: | 
-          ./gradlew jib 
-          -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }}
-          -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }}
-          -Djib.to.auth.password=${{ secrets.NCP_SECRET_KEY }}
+          ./gradlew jib \
+          -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }} \
+          -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }} \
+          -Djib.to.auth.password=${{ secrets.NCP_SECRET_KEY }} \
 
   pull_from_registry:
     needs: push_to_registry # 순서 설정
