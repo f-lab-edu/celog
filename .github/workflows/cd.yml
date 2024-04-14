@@ -1,0 +1,53 @@
+name: celog CD
+
+on:
+  push:
+    branches: [ "*" ] # CD 테스트 용으로 "main"
+
+jobs:
+  push_to_registry:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew jib \                                                                                                                                                                           INT ✘  7m 42s   22:59:11 
+          -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }} \
+          -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }} \
+          -Djib.to.auth.password=${{ secrets.NCP_SECRET_KEY }}
+
+  pull_from_registry:
+    needs: push_to_registry # 순서 설정
+    runs-on: ubuntu-latest
+    steps:
+      - name: connect ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          password: ${{ secrets.PROD_PASSWORD }}
+          port: ${{ secrets.PROD_PORT }}
+          script: | 
+            touch ./.env.prod
+            echo "${{ secrets.ENV_CONFIG }}" > ./.env.prod
+            docker pull ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q)
+            docker run -d -p 8080:8080 -p 3306:3306 --env-file ./.env.prod ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
+            docker image prune -f
+          # 환경변수 설정
+          # 새로운 어플리케이션 이미지 받기
+          # 기존 모든 컨테이너 동작 중지 & 종료
+          # 새로운 어플리케이션 컨테이너로 실행하기 - 사용한 환경변수 적용
+          # 사용하지 않는 이미지 전부 제거
