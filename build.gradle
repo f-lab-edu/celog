@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
@@ -6,6 +8,7 @@ plugins {
     id 'checkstyle'
     id 'jacoco'
     id 'io.spring.javaformat' version '0.0.41'
+    id 'com.google.cloud.tools.jib' version "3.4.2"
 }
 
 checkstyle {
@@ -19,9 +22,6 @@ jacoco {
     // 테스트결과 리포트를 저장할 경로 변경
     reportsDirectory = layout.buildDirectory.dir('jacocoReportDir')
 }
-
-group = 'dev.sijun-yang'
-version = '0.0.1-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
@@ -99,6 +99,48 @@ jacocoTestReport {
 //        }
 //    }
 //}
+
+group = 'dev.sijun-yang'
+// 따로 버전 관리는 안함, 도커로 빌드해서 사용하고 시간 기준으로 알아서 관리
+//version = '0.0.1-SNAPSHOT'
+
+jib {
+    from {
+        // openjdk 이미지는 더 이상 관리 되지 않으므로 amazoncorretto를 사용
+        image = 'amazoncorretto:17-alpine-jdk'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
+
+        to {
+            // 주소 뒤에 사용할 이미지 이름을 작성해야 동작한다. 이름 자체는 뭘 하든 상관 없다.
+            // ex: image = '<name>.kr.ncr.ntruss.com/<이미지 이름>'
+            /*
+            image registry 위치는 system properties를 사용해서 CD 스크립트에서 주입해 줄 예정
+            참고: https://github.com/GoogleContainerTools/jib/tree/master/jib-gradle-plugin#system-properties
+             */
+            // version과 tags에 작성한 tags 로 이미지를 배포. 예시: celog-server:v_20240412113205, celog-server:latest
+            version = 'latest'
+            tags = ['v_' + LocalDateTime.now().format("yyyyMMddhhmmss")]
+            auth {
+                // username & password 도 마찬가지로 CD 스크립트에서 주입
+            }
+        }
+        container {
+            // 컨테이너 실행 시, run -e SPRING_ACTIVE_PROFILE=OOO 처럼 사용해서 profile 주입 가능
+            jvmFlags = ['-Dspring.profiles.active=${SPRING_ACTIVE_PROFILE}']
+            ports = ['8080/tcp', '3306/tcp']
+        }
+
+    }
+}
 
 
 // 커밋 컨벤션을 지키기 위한 commit-msg 스크립트를 local git hook에 적용하는 task

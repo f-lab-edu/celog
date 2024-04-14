@@ -10,15 +10,17 @@ server:
         http-only: true
 
 spring:
-  docker.compose.skip.in-tests: true # docker compose support 지원 안함
-  data:
-    redis:
-      host: ${celog-redis-host}
-      port: ${celog-redis-port}
-      password: ${celog-redis-password}
-      username: ${celog-redis-username}
+  # docker compose support (로컬 환경을 구성하기 위한 목적이므로)
+  docker:
+    compose:
+      enabled: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${celog-mysql-url}
     username: ${celog-mysql-username}
     password: ${celog-mysql-password}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: ${celog-jpa-ddl-auto}
