@@ -2,6 +2,7 @@ package dev.sijunyang.celog.core.domain.user;
 
 import dev.sijunyang.celog.core.global.enums.AuthenticationType;
 import dev.sijunyang.celog.core.global.enums.Role;
+import dev.sijunyang.celog.core.global.error.nextVer.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -68,6 +69,7 @@ class UserServiceTest {
         // Given
         long userId = 1L;
         long requestUserId = 1L;
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
         UpdateUserRequest request = new UpdateUserRequest("John Smith", "john.smith@example.com", null, Role.ADMIN);
         UserEntity expectedUserEntity = UserEntity.builder()
             .id(userId)
@@ -80,13 +82,14 @@ class UserServiceTest {
             .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUserEntity));
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         // When
-        userService.updateUser(requestUserId, userId, request);
+        userService.updateUser(requester, userId, request);
 
         // Then
         // 의존하는 Mock 객체가 올바르게 호출되었는가?
-        verify(userRepository, times(2)).findById(userId);
+        verify(userRepository, times(2)).existsById(userId);
         verify(userRepository, times(1)).save(userEntityCaptor.capture());
 
         UserEntity capturedUserEntity = userEntityCaptor.getValue();
@@ -102,15 +105,15 @@ class UserServiceTest {
         // Given
         long userId = 1L;
         long requestUserId = 1L;
-        UserEntity expectedUserEntity = UserEntity.builder().id(userId).role(Role.USER).build();
+        RequestUser requester = new RequestUser(requestUserId, Role.USER);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUserEntity));
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         // When
-        userService.deleteUser(requestUserId, userId);
+        userService.deleteUser(requester, userId);
 
         // Then
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(2)).existsById(userId);
         verify(userRepository, times(1)).deleteById(userId);
     }
 
@@ -193,7 +196,7 @@ class UserServiceTest {
         doReturn(true).when(userRepository).existsByEmail(request.email());
 
         // When & Then
-        assertThrows(DuplicatedEmailException.class, () -> userService.createUser(request));
+        assertThrows(InvalidInputException.class, () -> userService.createUser(request));
     }
 
     @Test
@@ -204,7 +207,7 @@ class UserServiceTest {
         doReturn(Optional.empty()).when(userRepository).findById(userId);
 
         // When & Then
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(userId));
+        assertThrows(InvalidInputException.class, () -> userService.getUserById(userId));
     }
 
 }

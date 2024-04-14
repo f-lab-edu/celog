@@ -59,7 +59,7 @@ class ReplyServiceTest {
         Long superReplyId = null;
         CreateReplyRequest createReplyRequest = new CreateReplyRequest(content, postId, superReplyId);
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.save(any())).thenReturn(null); // 반환 값 사용하지 않음
 
@@ -93,7 +93,7 @@ class ReplyServiceTest {
             .superReplyId(superReplyId)
             .build();
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(exisitngReplyEntity));
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
 
@@ -123,7 +123,7 @@ class ReplyServiceTest {
             .userId(requestUserId)
             .build();
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(existingReplyEntity));
         doNothing().when(this.postService).validatePostById(postId);
         doNothing().when(this.replyRepository).delete(any());
@@ -147,7 +147,7 @@ class ReplyServiceTest {
         PostDto existingPostDto = new PostDto(postId, "title", "content", PublicationStatus.PUBLIC_PUBLISHED, userId,
                 null, null);
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.postService.getPost(requester, postId)).thenReturn(existingPostDto);
         when(this.replyRepository.deleteAllByPostId(postId)).thenReturn(null); // 반환 값
                                                                                // 사용하지 않음
@@ -174,7 +174,7 @@ class ReplyServiceTest {
                 ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(null).build(),
                 ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(null).build());
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.findAllByPostIdAndSuperReplyIdIsNull(postId)).thenReturn(zeroDepthReplies);
 
@@ -206,7 +206,7 @@ class ReplyServiceTest {
                 ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(superReplyId).build(),
                 ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(superReplyId).build());
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(superReplyId)).thenReturn(Optional.of(superReply));
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.findAllBySuperReplyId(postId)).thenReturn(zeroDepthReplies);
@@ -226,7 +226,7 @@ class ReplyServiceTest {
         long replyId = 1L;
         UpdateReplyRequest updateReplyRequest = new UpdateReplyRequest("content");
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.empty());
         // When & Then
         assertThrows(ResourceNotFoundException.class,
@@ -248,7 +248,7 @@ class ReplyServiceTest {
             .build();
         UpdateReplyRequest updateReplyRequest = new UpdateReplyRequest("content");
 
-        doNothing().when(this.userService).validUserById(requestUserId);
+        doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.of(exisitngReplyEntity));
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
 
