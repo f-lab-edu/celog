@@ -2,7 +2,7 @@ name: celog CD
 
 on:
   push:
-    branches: [ "*" ] # CD 테스트 용으로 "main"
+    branches: [ "*" ] # CD 테스트 용으로 "main" 
 
 jobs:
   push_to_registry:
