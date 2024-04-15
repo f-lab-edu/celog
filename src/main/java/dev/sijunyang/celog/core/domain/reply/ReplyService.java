@@ -134,7 +134,7 @@ public class ReplyService {
         return childReplies.stream().map(ReplyEntity::tooReplyDto).collect(Collectors.toList());
     }
 
-    //TODO 여기서 ReplyEntity 가져올 때부터 postId 검사하는게 더 좋을듯?
+    // TODO 여기서 ReplyEntity 가져올 때부터 postId 검사하는게 더 좋을듯?
     private ReplyEntity getById(long replyId) {
         return this.replyRepository.findById(replyId)
             .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. replyId: " + replyId));
