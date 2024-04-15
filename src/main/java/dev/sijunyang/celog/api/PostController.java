@@ -63,11 +63,13 @@ public class PostController {
         return ResponseEntity.ok().body(this.postService.getAllPublishedPosts());
     }
 
-    // TODO @GetMapping("/v1/users/{userId}/posts")로 하고 싶은데, 그럼 User 컨트롤러로 가거나 새로운 컨트롤러를 만들어야 함
-    //  User 컨트롤러로 가면 계속 User 쪽으로 의존성이 모여서 별로라고 생각함, 메서드 하나 때문에 새로 만들기 애매함
+    // TODO @GetMapping("/v1/users/{userId}/posts")로 하고 싶은데, 그럼 User 컨트롤러로 가거나 새로운 컨트롤러를
+    // 만들어야 함
+    // User 컨트롤러로 가면 계속 User 쪽으로 의존성이 모여서 별로라고 생각함, 메서드 하나 때문에 새로 만들기 애매함
     @GetMapping("/users/{userId}")
     public ResponseEntity<List<PostSummaryDto>> getAllPostsByUserId(@PathVariable Long userId) {
         RequestUser requestUser = this.authenticatedUserManager.getRequestUser();
         return ResponseEntity.ok().body(this.postService.getAllPostsByUserId(requestUser, userId));
     }
+
 }

@@ -6,8 +6,8 @@ import dev.sijunyang.celog.core.domain.user.UpdateUserRequest;
 import dev.sijunyang.celog.core.domain.user.UserDto;
 import dev.sijunyang.celog.core.domain.user.UserService;
 import jakarta.validation.Valid;
-
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
