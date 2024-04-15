@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Sijun Yang
  */
+// TODO 익명 사용자의 경우, OAuth2AuthenticationToken 을 가지지 않는다. 해당 경우에 대한 조건을 고려해서 수정해야 한다.
 @Component
 public class AuthenticatedUserManagerImpl implements AuthenticatedUserManager {
 
