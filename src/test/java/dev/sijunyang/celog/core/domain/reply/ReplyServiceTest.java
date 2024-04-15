@@ -57,14 +57,14 @@ class ReplyServiceTest {
 
         String content = "This is a test reply.";
         Long superReplyId = null;
-        CreateReplyRequest createReplyRequest = new CreateReplyRequest(content, postId, superReplyId);
+        CreateReplyRequest createReplyRequest = new CreateReplyRequest(content, superReplyId);
 
         doNothing().when(this.userService).validateUserExistence(requestUserId);
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.save(any())).thenReturn(null); // 반환 값 사용하지 않음
 
         // When
-        this.replyService.createReply(requester, createReplyRequest);
+        this.replyService.createReply(requester, postId, createReplyRequest);
 
         // Then
         verify(this.replyRepository, times(1)).save(this.replyEntity.capture());
@@ -100,7 +100,7 @@ class ReplyServiceTest {
         when(this.replyRepository.save(any())).thenReturn(null); // 반환 값 사용하지 않음
 
         // When
-        this.replyService.updateReply(requester, replyId, updateReplyRequest);
+        this.replyService.updateReply(requester, postId, replyId, updateReplyRequest);
 
         // Then
         verify(this.replyRepository, times(1)).save(this.replyEntity.capture());
@@ -129,7 +129,7 @@ class ReplyServiceTest {
         doNothing().when(this.replyRepository).delete(any());
 
         // When
-        this.replyService.deleteReply(requester, replyId);
+        this.replyService.deleteReply(requester, postId, replyId);
 
         // Then
         verify(this.replyRepository, times(1)).delete(existingReplyEntity);
@@ -193,29 +193,29 @@ class ReplyServiceTest {
         long postId = 1L;
         long user1Id = 1L;
         long user2Id = 2L;
-        long superReplyId = 1L;
+        long parentReplyId = 1L;
         long reply1Id = 1L;
         long reply2Id = 2L;
         ReplyEntity superReply = ReplyEntity.builder()
-            .id(superReplyId)
+            .id(parentReplyId)
             .postId(postId)
             .userId(user1Id)
             .superReplyId(null)
             .build();
         List<ReplyEntity> zeroDepthReplies = List.of(
-                ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(superReplyId).build(),
-                ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(superReplyId).build());
+                ReplyEntity.builder().id(reply1Id).postId(postId).userId(user1Id).superReplyId(parentReplyId).build(),
+                ReplyEntity.builder().id(reply2Id).postId(postId).userId(user2Id).superReplyId(parentReplyId).build());
 
         doNothing().when(this.userService).validateUserExistence(requestUserId);
-        when(this.replyRepository.findById(superReplyId)).thenReturn(Optional.of(superReply));
+        when(this.replyRepository.findById(parentReplyId)).thenReturn(Optional.of(superReply));
         doNothing().when(this.postService).validateUserPostAccess(requester, postId);
         when(this.replyRepository.findAllBySuperReplyId(postId)).thenReturn(zeroDepthReplies);
 
         // When
-        List<ReplyDto> rt = this.replyService.getChildRepliesById(requester, postId);
+        List<ReplyDto> rt = this.replyService.getChildRepliesById(requester, parentReplyId, postId);
 
         // Then
-        rt.forEach((replyDto) -> assertEquals(superReplyId, replyDto.getSuperReplyId()));
+        rt.forEach((replyDto) -> assertEquals(parentReplyId, replyDto.getSuperReplyId()));
     }
 
     @Test
@@ -224,13 +224,14 @@ class ReplyServiceTest {
         long requestUserId = 1L;
         RequestUser requester = new RequestUser(requestUserId, Role.USER);
         long replyId = 1L;
+        long postId = 2L;
         UpdateReplyRequest updateReplyRequest = new UpdateReplyRequest("content");
 
         doNothing().when(this.userService).validateUserExistence(requestUserId);
         when(this.replyRepository.findById(replyId)).thenReturn(Optional.empty());
         // When & Then
         assertThrows(ResourceNotFoundException.class,
-                () -> this.replyService.updateReply(requester, replyId, updateReplyRequest));
+                () -> this.replyService.updateReply(requester, postId, replyId, updateReplyRequest));
     }
 
     @Test
@@ -254,7 +255,7 @@ class ReplyServiceTest {
 
         // When & Then
         assertThrows(InsufficientPermissionException.class,
-                () -> this.replyService.updateReply(requester, replyId, updateReplyRequest));
+                () -> this.replyService.updateReply(requester, postId, replyId, updateReplyRequest));
     }
 
 }

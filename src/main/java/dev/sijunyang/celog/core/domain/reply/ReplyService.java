@@ -36,17 +36,18 @@ public class ReplyService {
     /**
      * 새로운 댓글을 생성합니다. 댓글을 생성하려는 게시글에 접근 가능해야 합니다.
      * @param requester 댓글을 생성하려는 사용자 정보
+     * @param postId 수정할 댓글의 게시글 ID
      * @param createReplyRequest 생성할 댓글 정보
      */
-    public void createReply(@NotNull @Valid RequestUser requester,
+    public void createReply(@NotNull @Valid RequestUser requester, long postId,
             @NotNull @Valid CreateReplyRequest createReplyRequest) {
         validateUserById(requester.userId());
-        validatePostAccessible(requester, createReplyRequest.postId());
+        validatePostAccessible(requester, postId);
         ReplyEntity replyEntity = ReplyEntity.builder()
             .id(null)
             .content(createReplyRequest.content())
             .userId(requester.userId())
-            .postId(createReplyRequest.postId())
+            .postId(postId)
             .superReplyId(createReplyRequest.superReplyId())
             .build();
         this.replyRepository.save(replyEntity);
@@ -55,13 +56,15 @@ public class ReplyService {
     /**
      * 기존 댓글 정보를 수정합니다. 수정하려는 댓글이 달린 게시글에 접근 가능한 사용자이며, 작성자 본인만 수행 가능합니다.
      * @param requester 댓글을 수정하려는 사용자 정보
+     * @param postId 수정할 댓글의 게시글 ID
      * @param replyId 수정할 댓글 ID
      * @param updateRequest 수정된 댓글 정보
      */
-    public void updateReply(@NotNull @Valid RequestUser requester, long replyId,
+    public void updateReply(@NotNull @Valid RequestUser requester, long postId, long replyId,
             @NotNull @Valid UpdateReplyRequest updateRequest) {
         validateUserById(requester.userId());
         ReplyEntity oldReplyEntity = getById(replyId);
+        validatePostHasReply(postId, oldReplyEntity);
         validatePostAccessible(requester, oldReplyEntity.getPostId());
         validateUpdatable(requester, oldReplyEntity);
 
@@ -79,13 +82,13 @@ public class ReplyService {
     /**
      * 댓글을 삭제합니다. 어드민 혹은 작성자 본인만 수행 가능합니다.
      * @param requester 댓글을 삭제하려는 사용자 정보
+     * @param postId 수정할 댓글의 게시글 ID
      * @param replyId 삭제할 댓글 ID
      */
-    public void deleteReply(@NotNull @Valid RequestUser requester, long replyId) {
+    public void deleteReply(@NotNull @Valid RequestUser requester, long postId, long replyId) {
         validateUserById(requester.userId());
         ReplyEntity replyEntity = getById(replyId);
-        // Post에 접근 불가능해도, 이미 작성한 글은 제거 가능해야 하므로 Post 접근 권한 검사는 하지 않는다. 실제 존재하는지만 확인.
-        this.postService.validatePostById(replyEntity.getPostId());
+        validatePostHasReply(postId, replyEntity);
         validateDeletable(requester, replyEntity.getUserId());
         this.replyRepository.delete(replyEntity);
     }
@@ -118,17 +121,20 @@ public class ReplyService {
     /**
      * 특정 댓글에 대한 댓글을 가져옵니다.
      * @param requester 댓글을 조회하려는 사용자 정보
+     * @param postId 수정할 댓글의 게시글 ID
      * @param parentReplyId 조회할 댓글 ID
      * @return 해당 댓글에 달린 댓글 리스트
      */
-    public List<ReplyDto> getChildRepliesById(@NotNull @Valid RequestUser requester, long parentReplyId) {
+    public List<ReplyDto> getChildRepliesById(@NotNull @Valid RequestUser requester, long postId, long parentReplyId) {
         validateUserById(requester.userId());
         ReplyEntity parentReplyEntity = getById(parentReplyId);
+        validatePostHasReply(postId, parentReplyEntity);
         validatePostAccessible(requester, parentReplyEntity.getPostId());
         List<ReplyEntity> childReplies = this.replyRepository.findAllBySuperReplyId(parentReplyId);
         return childReplies.stream().map(ReplyEntity::tooReplyDto).collect(Collectors.toList());
     }
 
+    // TODO 여기서 ReplyEntity 가져올 때부터 postId 검사하는게 더 좋을듯?
     private ReplyEntity getById(long replyId) {
         return this.replyRepository.findById(replyId)
             .orElseThrow(() -> new ResourceNotFoundException("ID에 해당되는 ReplyEntity를 찾을 수 없습니다. replyId: " + replyId));
@@ -155,6 +161,14 @@ public class ReplyService {
 
     private void validateUserById(long userId) {
         this.userService.validateUserExistence(userId);
+    }
+
+    private void validatePostHasReply(long postId, ReplyEntity reply) {
+        this.postService.validatePostById(postId);
+        if (!reply.getPostId().equals(postId)) {
+            throw new ResourceNotFoundException(
+                    "reply의 post와 postId가 일치하지 않습니다. postId: " + postId + ", replyId: " + reply.getId());
+        }
     }
 
 }
