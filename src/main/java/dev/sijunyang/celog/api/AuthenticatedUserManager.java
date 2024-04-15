@@ -1,5 +1,6 @@
 package dev.sijunyang.celog.api;
 
+import dev.sijunyang.celog.core.domain.user.RequestUser;
 import dev.sijunyang.celog.core.global.enums.Role;
 
 /**
@@ -20,5 +21,13 @@ public interface AuthenticatedUserManager {
      * @return 사용자 역할
      */
     Role getRole();
+
+    /**
+     * 인증된 사용자의 정보를 반환합니다.
+     * @return 사용자 정보
+     */
+    default RequestUser getRequestUser() {
+        return new RequestUser(getId(), getRole());
+    };
 
 }
