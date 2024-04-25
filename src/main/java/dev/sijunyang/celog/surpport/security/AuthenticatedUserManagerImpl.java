@@ -55,7 +55,7 @@ public class AuthenticatedUserManagerImpl implements AuthenticatedUserManager {
         // 인증 된 사용자는 항상 "role" 속성 값을 가지고 있습니다.
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-            return oAuth2User.getAttribute("role");
+            return oAuth2User.getAttribute(CustomOauth2UserService.CELOG_ROLE);
         }
         else {
             throw new RuntimeException("지원하지 않는 authentication 객체입니다. authentication: " + authentication);

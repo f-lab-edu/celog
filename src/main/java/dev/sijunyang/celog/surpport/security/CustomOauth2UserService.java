@@ -26,11 +26,22 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @RequiredArgsConstructor
 public class CustomOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private static final String ROLE_PREFIX = "ROLE_";
+    // TODO public static final 을 관리하는 클래스를 따로 두는게 좋을듯
 
-    private static final String CELOG_USER_ID = "celog_user_id";
+    /**
+     * Spring Security 의 인증 값의 접두사로 사용되는 문자열입니다. 예를 들어, 권한이 ADMIN 경우 ROLE_ADMIN으로 사용됩니다.
+     */
+    public static final String ROLE_PREFIX = "ROLE_";
 
-    private static final String CELOG_ROLE = "celog_role";
+    /**
+     * Spring Security 의 AuthenticationToken의 속성 중에 식별자를 담은 속성의 키로 사용되는 문자열입니다.
+     */
+    public static final String CELOG_USER_ID = "celog_user_id";
+
+    /**
+     * Spring Security 의 AuthenticationToken속성 중에 사용자의 권한을 담은 속성의 키로 사용되는 문자열입니다.
+     */
+    public static final String CELOG_ROLE = "celog_role";
 
     private final UserService userService;
 
