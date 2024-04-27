@@ -3,6 +3,8 @@ name: celog CD
 on:
   push:
     branches: [ "main" ]
+  pull_request: # 테스트를 위해서 임시로 설정
+      branches: [ "*" ]
 
 jobs:
   push_to_registry:
