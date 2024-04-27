@@ -48,7 +48,7 @@ jobs:
             docker pull ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
             docker stop $(docker ps -a -q)
             docker rm $(docker ps -a -q)
-            docker run -d -p 8080:8080 -p 3306:3306 --env-file ./.env.prod ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
+            docker run -d -p 8080:8080 -p 3306:3306 -p 9991:9991 -p 9992:9992 -p 9993:9993 -p 9994:9994 -p 9995:9995 -p 9996:9996 --env-file ./.env.prod ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
             docker image prune -f
           # 환경변수 설정
           # 새로운 어플리케이션 이미지 받기
