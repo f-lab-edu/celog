@@ -3,6 +3,8 @@ name: celog CD
 on:
   push:
     branches: [ "main" ]
+  pull_request: # 테스트를 위해서 임시로 설정
+      branches: [ "*" ]
 
 jobs:
   push_to_registry:
@@ -27,6 +29,7 @@ jobs:
           -Djib.to.image=${{ secrets.NCP_CONTAINER_IMAGE }} \
           -Djib.to.auth.username=${{ secrets.NCP_ACCESS_KEY }} \
           -Djib.to.auth.password=${{ secrets.NCP_SECRET_KEY }} \
+          -Pncp-pinpoint-licence=${{ secrets.NCP_PINPOINT_LICENCE }} \
 
   pull_from_registry:
     needs: push_to_registry # 순서 설정
@@ -45,7 +48,7 @@ jobs:
             docker pull ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
             docker stop $(docker ps -a -q)
             docker rm $(docker ps -a -q)
-            docker run -d -p 8080:8080 -p 3306:3306 --env-file ./.env.prod ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
+            docker run -d -p 8080:8080 -p 3306:3306 -p 9991:9991 -p 9992:9992 -p 9993:9993 -p 9994:9994 -p 9995:9995 -p 9996:9996 --env-file ./.env.prod ${{ secrets.NCP_CONTAINER_IMAGE }}:latest
             docker image prune -f
           # 환경변수 설정
           # 새로운 어플리케이션 이미지 받기

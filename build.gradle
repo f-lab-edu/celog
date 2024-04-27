@@ -105,6 +105,21 @@ group = 'dev.sijun-yang'
 // 따로 버전 관리는 안함, 도커로 빌드해서 사용하고 시간 기준으로 알아서 관리
 //version = '0.0.1-SNAPSHOT'
 
+
+// jib가 실행되기 전에 ncp-pinpoint agent로 등록하기 위한 라이선스 값 외부로 주입받고 작성하기
+project.tasks.getByName('jib').doFirst {
+    def licence = project.hasProperty('ncp-pinpoint-licence') ? project.property('ncp-pinpoint-licence') : null
+
+    if (licence == null || licence.isEmpty()) {
+        throw new GradleException("ncp-pinpoint-licence value is not provided. Please specify the value using -Pncp-pinpoint-licence=<ncp-pinpoint-licence-value>")
+    }
+
+    def licenceFile = file('ncp-pinpoint-agent/pinpoint-agent-2.5.4/pinpoint.license')
+    licenceFile.write(licence)
+
+    println "ncp-pinpoint-licence write successfully"
+}
+
 jib {
     from {
         // openjdk 이미지는 더 이상 관리 되지 않으므로 amazoncorretto를 사용
@@ -136,11 +151,20 @@ jib {
         }
         container {
             // 컨테이너 실행 시, run -e SPRING_ACTIVE_PROFILE=OOO 처럼 사용해서 profile 주입 가능
-            jvmFlags = ['-Dspring.profiles.active=${SPRING_ACTIVE_PROFILE}']
-            ports = ['8080/tcp', '3306/tcp']
+            jvmFlags = ['-Dspring.profiles.active=${SPRING_ACTIVE_PROFILE}', '-Dpinpoint.applicationName=celog-api-server', '-Dpinpoint.agentId=celog-001', '-javaagent:/pinpoint-agent-2.5.4/pinpoint-bootstrap-2.5.4.jar']
+            ports = ['8080/tcp', '3306/tcp', '9991/tcp', '9991/udp', '9992/tcp', '9992/udp', '9993/tcp', '9993/udp', '9994/tcp', '9994/udp', '9995/tcp', '9995/udp', '9996/tcp', '9996/udp']
         }
-
+        // /ncp-pinpoint-agent 로 복사됨. root 디렉토리(/) 바로 아래에 위치함.
+        extraDirectories.paths = ["ncp-pinpoint-agent"]
     }
+}
+
+// jib가 실행된 후에 agent 라이선스 파일의 값을 빈 값으로 초기화
+// 단, doLast는 jib가 실패하면 실행되지 않는다는 단점이 있다. 이후 보완이 필요할 수도 있음
+project.tasks.getByName('jib').doLast {
+    def licenceFile = file('ncp-pinpoint-agent/pinpoint-agent-2.5.4/pinpoint.license')
+    licenceFile.write("")
+    println "ncp-pinpoint-licence removed successfully"
 }
 
 
