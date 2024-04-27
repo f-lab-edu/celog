@@ -114,7 +114,7 @@ project.tasks.getByName('jib').doFirst {
         throw new GradleException("ncp-pinpoint-licence value is not provided. Please specify the value using -Pncp-pinpoint-licence=<ncp-pinpoint-licence-value>")
     }
 
-    def licenceFile = file('ncp-pinpoint-agent/pinpoint-agent-2.2.3-NCP-RC1/pinpoint.license')
+    def licenceFile = file('ncp-pinpoint-agent/pinpoint-agent-2.5.4/pinpoint.license')
     licenceFile.write(licence)
 
     println "ncp-pinpoint-licence write successfully"
@@ -151,7 +151,7 @@ jib {
         }
         container {
             // 컨테이너 실행 시, run -e SPRING_ACTIVE_PROFILE=OOO 처럼 사용해서 profile 주입 가능
-            jvmFlags = ['-Dspring.profiles.active=${SPRING_ACTIVE_PROFILE}', '-Dpinpoint.applicationName=celog-api-server', '-Dpinpoint.agentId=celog-001', '-javaagent:/pinpoint-agent-2.2.3-NCP-RC1/pinpoint-bootstrap-2.2.3-NCP-RC1.jar']
+            jvmFlags = ['-Dspring.profiles.active=${SPRING_ACTIVE_PROFILE}', '-Dpinpoint.applicationName=celog-api-server', '-Dpinpoint.agentId=celog-001', '-javaagent:/pinpoint-agent-2.5.4/pinpoint-bootstrap-2.5.4.jar']
             ports = ['8080/tcp', '3306/tcp']
         }
         // /ncp-pinpoint-agent 로 복사됨. root 디렉토리(/) 바로 아래에 위치함.
@@ -162,7 +162,7 @@ jib {
 // jib가 실행된 후에 agent 라이선스 파일의 값을 빈 값으로 초기화
 // 단, doLast는 jib가 실패하면 실행되지 않는다는 단점이 있다. 이후 보완이 필요할 수도 있음
 project.tasks.getByName('jib').doLast {
-    def licenceFile = file('ncp-pinpoint-agent/ncp-pinpoint-licence.txt')
+    def licenceFile = file('ncp-pinpoint-agent/pinpoint-agent-2.5.4/pinpoint.license')
     licenceFile.write("")
     println "ncp-pinpoint-licence removed successfully"
 }
