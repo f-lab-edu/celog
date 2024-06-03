@@ -7,3 +7,8 @@
 ![image](https://github.com/f-lab-edu/celog/assets/80192911/469c3dde-614a-4719-95b8-70cf99fb71d3)
 
 ![image](https://github.com/f-lab-edu/celog/assets/80192911/62bc353c-2d19-474d-a98f-45bb4a4f3cc5)
+
+
+기술 스택
+Java, Spring Boot, Spring Seucurity, Spring MVC, IntelliJ, Gradle, Spring Data JPA, MySQL, Github Actions, Docker
+
