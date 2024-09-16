@@ -274,3 +274,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,visualstudiocode,java,gradle,macos,windows,linux
+
+# ncp-pinpoint 관련 jar은 ingnore 하지 않음
+!ncp-pinpoint-agent/**/*.jar
